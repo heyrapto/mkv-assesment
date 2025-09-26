@@ -28,6 +28,12 @@
   --color-text-yellow: var(--text-yellow);
 }
 
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
 body{
   background-color: var(--bg-primary);
   color: var(--text-primary);
