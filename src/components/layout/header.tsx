@@ -127,7 +127,7 @@ const Header = () => {
 
           {/* User Menu */}
           <Menu>
-            <MenuButton as={Button} variant="ghost" size="sm">
+            <MenuButton as={Button} variant="ghost" size="sm" padding="10px" borderRadius="10px">
               <HStack gap={2}>
                 <Avatar.Root size="sm" title="Hi Paul">
                   <Avatar.Image src="https://bit.ly/sage-adebayo" alt="Paul" />

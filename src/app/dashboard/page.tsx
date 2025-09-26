@@ -28,17 +28,21 @@ import {
   RowVertical,
 } from "iconsax-react"
 import {
+  FaArrowDown,
   FaArrowLeft,
   FaCalendarWeek,
   FaCapsules,
   FaCheckCircle,
+  FaChevronDown,
+  FaEllipsisH,
   FaEllipsisV,
   FaFileExport,
   FaPlusCircle,
   FaToggleOff,
 } from "react-icons/fa"
-import { LuColumns2, LuListFilter, LuRows2 } from "react-icons/lu"
+import { LuColumns2, LuFlag, LuListFilter, LuRows2 } from "react-icons/lu"
 import MainLayout from "./layout"
+import TaskCardView from "@/components/ui/card-view"
 
 const mockTasks = [
   {
@@ -73,19 +77,27 @@ const mockTasks = [
   },
   {
     id: 4,
-    name: "MKV Intranet V2",
-    date: "04/06/2024 - 16/06/2024",
+    name: "Testing Data",
+    date: "23/06/2024 - 24/06/2024",
     assignee: [{ name: "Chris", avatar: "https://i.pravatar.cc/150?u=chris" }],
-    priority: "Medium",
+    priority: "Urgent",
     status: "progress",
   },
   {
     id: 5,
-    name: "Design System",
-    date: "23/06/2024 - 24/06/2024",
+    name: "Patient Request",
+    date: "16/06/2024 - 18/06/2024",
     assignee: [{ name: "Taylor", avatar: "https://i.pravatar.cc/150?u=taylor" }],
-    priority: "Important",
+    priority: "Urgent",
     status: "progress",
+  },
+  {
+    id: 6,
+    name: "Patient Meetup",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Jordan", avatar: "https://i.pravatar.cc/150?u=jordan" }],
+    priority: "Low",
+    status: "complete",
   },
 ]
 
@@ -97,6 +109,8 @@ const getPriorityColor = (priority: string) => {
       return "orange"
     case "Medium":
       return "blue"
+    case "Low":
+      return "gray"
     default:
       return "gray"
   }
@@ -104,27 +118,29 @@ const getPriorityColor = (priority: string) => {
 
 const TaskTable = ({ tasks }: any) => {
   const { colorMode } = useColorMode()
-  const borderColor = colorMode === "light" ? "#E2E8F0" : "#4A5568"
+  const borderColor = colorMode === "light" ? "#E5E7EB" : "#4A5568"
 
   return (
-    <Box overflowX="auto">
+    <Box overflowX="auto" bg="white" borderRadius="lg" border="1px solid #E5E7EB">
       {/* Table Header */}
       <Box
         display="grid"
         gridTemplateColumns="2fr 1.5fr 1fr 1fr auto"
         gap={4}
-        px={4}
-        py={3}
-        bg="gray.50"
+        px={6}
+        py={4}
+        bg="#F9FAFB"
         borderBottom="1px solid"
         borderColor={borderColor}
-        fontWeight="semibold"
+        fontWeight="600"
+        fontSize="sm"
+        color="#6B7280"
+        borderTopRadius="lg"
       >
-        {["Name", "Date", "Assignee", "Priority"].map((col, i) => (
-          <Text key={i} fontSize="sm" color="gray.600">
-            {col}
-          </Text>
-        ))}
+        <Text>Name</Text>
+        <Text>Date</Text>
+        <Text>Assignee</Text>
+        <Text>Priority</Text>
         <Box />
       </Box>
 
@@ -135,40 +151,59 @@ const TaskTable = ({ tasks }: any) => {
           display="grid"
           gridTemplateColumns="2fr 1.5fr 1fr 1fr auto"
           gap={4}
-          px={4}
-          py={3}
+          px={6}
+          py={4}
           borderBottom={index !== tasks.length - 1 ? "1px solid" : "none"}
           borderColor={borderColor}
-          _hover={{ bg: colorMode === "light" ? "gray.50" : "gray.700" }}
+          _hover={{ bg: "#F9FAFB" }}
+          transition="background-color 0.2s"
         >
-          <Text fontWeight="medium">{task.name}</Text>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontWeight="500" color="#111827" fontSize="sm">
+            {task.name}
+          </Text>
+          <Text fontSize="sm" color="#6B7280">
             {task.date}
           </Text>
 
-          <AvatarGroup size="sm">
-            {task.assignee.map((user: any, idx: number) => (
-              <Avatar.Root key={idx}>
-                <Avatar.Fallback>
-                  {user.name ? user.name.slice(0, 2).toUpperCase() : "NA"}
-                </Avatar.Fallback>
-                {user.avatar && <Avatar.Image src={user.avatar} alt={user.name} />}
-              </Avatar.Root>
-            ))}
-          </AvatarGroup>
+          <HStack>
+            <AvatarGroup size="sm">
+              {task.assignee.map((user: any, idx: number) => (
+                <Avatar.Root key={idx} size="sm">
+                  <Avatar.Fallback bg="#E5E7EB" color="#374151" fontSize="xs">
+                    {user.name ? user.name.slice(0, 2).toUpperCase() : "NA"}
+                  </Avatar.Fallback>
+                  {user.avatar && <Avatar.Image src={user.avatar} alt={user.name} />}
+                </Avatar.Root>
+              ))}
+            </AvatarGroup>
+            {task.assignee.length > 2 && (
+              <Text fontSize="xs" color="#6B7280">
+                +{task.assignee.length - 2}
+              </Text>
+            )}
+          </HStack>
 
-          <Badge
-            colorScheme={getPriorityColor(task.priority)}
-            px={2}
-            py={1}
-            borderRadius="md"
-            fontSize="xs"
+          <HStack>
+            <LuFlag
+              size={16}
+              className={`${task.priority === "Urgent" ? "text-red-500" :
+                task.priority === "Important" ? "text-yellow-500" :
+                  task.priority === "Medium" ? "text-blue-500" : "text-gray-500"} `}
+            />
+            <Text fontSize="sm" color="#374151" fontWeight="500">
+              {task.priority}
+            </Text>
+          </HStack>
+
+
+          <IconButton
+            aria-label="More options"
+            size="sm"
+            variant="ghost"
+            color="#6B7280"
+            _hover={{ bg: "#F3F4F6" }}
           >
-            {task.priority}
-          </Badge>
-
-          <IconButton aria-label="More options" size="sm" variant="ghost">
-            <FaEllipsisV />
+            <FaEllipsisH />
           </IconButton>
         </Box>
       ))}
@@ -185,7 +220,7 @@ const SearchInput = ({ searchTerm, setSearchTerm }: any) => (
       transform="translateY(-50%)"
       zIndex={2}
     >
-      <SearchNormal1 size="20" color="#A0AEC0" />
+      <SearchNormal1 size="20" color="#9CA3AF" />
     </Box>
     <Input
       placeholder="Search for To-Do"
@@ -193,8 +228,12 @@ const SearchInput = ({ searchTerm, setSearchTerm }: any) => (
       onChange={(e) => setSearchTerm(e.target.value)}
       bg="white"
       border="1px"
-      borderColor="gray.200"
+      borderColor="#E5E7EB"
+      borderRadius="lg"
       pl={10}
+      h="40px"
+      fontSize="sm"
+      _focus={{ borderColor: "#3B82F6", boxShadow: "0 0 0 1px #3B82F6" }}
     />
   </Box>
 )
@@ -211,10 +250,20 @@ const TaskManagement = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [viewMode, setViewMode] = useState<"table" | "card">("table")
+  const [tasks, setTasks] = useState(mockTasks)
   const { colorMode } = useColorMode()
   const bg = colorMode === "light" ? "white" : "gray.800"
 
-  const filteredTasks = mockTasks.filter((task) =>
+  const handleTaskMove = (taskId: number, newStatus: string) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === taskId ? { ...task, status: newStatus } : task
+      )
+    )
+  }
+
+  const filteredTasks = tasks.filter((task) =>
     task.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -228,7 +277,7 @@ const TaskManagement = () => {
   const tabItems = [
     { value: "todo", label: "To Do", icon: <LuListFilter />, color: "#A78BFA" },
     { value: "progress", label: "In Progress", icon: <FaCapsules />, color: "#FBBF24" },
-    { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#2DD4BF" },
+    { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#10B981" },
   ]
 
   const headerActions = [
@@ -308,11 +357,23 @@ const TaskManagement = () => {
         {/* Search */}
         <Flex justify="space-between" align="center" className="bg-[#E9F5F7] rounded-md" padding="10px">
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          <HStack className="flex gap-2 bg-white h-[40px]" padding="10px">
-            <IconButton backgroundColor="gray.100" color="gray.900" height="28px">
+          <HStack className="flex gap-2 bg-white h-[40px]" padding="10px" borderRadius="lg">
+            <IconButton
+              backgroundColor={viewMode === "table" ? "#75C5C1" : "gray.100"}
+              color={viewMode === "table" ? "white" : "gray.900"}
+              height="28px"
+              onClick={() => setViewMode("table")}
+              borderRadius="md"
+            >
               <LuRows2 />
             </IconButton>
-            <IconButton backgroundColor="#75C5C1" color="white" height="28px">
+            <IconButton
+              backgroundColor={viewMode === "card" ? "#75C5C1" : "gray.100"}
+              color={viewMode === "card" ? "white" : "gray.900"}
+              height="28px"
+              onClick={() => setViewMode("card")}
+              borderRadius="md"
+            >
               <LuColumns2 />
             </IconButton>
           </HStack>
@@ -376,14 +437,26 @@ const TaskManagement = () => {
           {/* Tab Content */}
           {tabItems.map((tab) => (
             <Tabs.Content key={tab.value} value={tab.value}>
-              <TaskTable tasks={taskGroups[tab.value]} />
+              {viewMode === "table" ? (
+                <TaskTable tasks={taskGroups[tab.value]} />
+              ) : (
+                <TaskCardView tasks={taskGroups[tab.value]} onTaskMove={handleTaskMove} />
+              )}
             </Tabs.Content>
           ))}
         </Tabs.Root>
 
         {/* Pagination */}
         <Flex justify="space-between" align="center" pt={4}>
-          <HStack gap={2}>
+          <HStack gap={2} backgroundColor="#F7F7F7" borderRadius="50px" padding="10px">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            >
+              {"<"}
+            </Button>
             <Button
               size="sm"
               variant="ghost"
@@ -397,8 +470,10 @@ const TaskManagement = () => {
               <Button
                 key={idx}
                 size="sm"
+                borderRadius="50%"
+                backgroundColor="#75C5C1"
                 variant={currentPage === idx + 1 ? "solid" : "ghost"}
-                colorScheme={currentPage === idx + 1 ? "blue" : "gray"}
+                colorScheme={currentPage === idx + 1 ? "blue" : "#75C5C1"}
                 onClick={() => setCurrentPage(idx + 1)}
               >
                 {idx + 1}
@@ -413,9 +488,17 @@ const TaskManagement = () => {
             >
               »
             </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            >
+              {">"}
+            </Button>
           </HStack>
 
-          <HStack gap={2}>
+          <HStack gap={2} className="">
             <Text fontSize="sm" color="gray.600">
               Rows Per page:
             </Text>
@@ -428,9 +511,10 @@ const TaskManagement = () => {
                 setCurrentPage(1)
               }}
             >
-              <Select.Control w="70px">
-                <Select.Trigger>
+              <Select.Control w="70px"  >
+                <Select.Trigger borderRadius="50px" className="flex items-center gap-2 cursor-pointer">
                   <Select.ValueText />
+                  <FaChevronDown />
                 </Select.Trigger>
               </Select.Control>
               <Portal>
