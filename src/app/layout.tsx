@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${plusJakartaSans.variable} antialiased`}>
-        <Provider>{children}</Provider>
+        <Provider defaultTheme="light" forcedTheme="light">{children}</Provider>
       </body>
     </html>
   );
