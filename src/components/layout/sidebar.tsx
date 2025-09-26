@@ -5,8 +5,14 @@ import {
   HStack,
   Text,
   Icon,
-  useDisclosure,
   Flex,
+  IconButton,
+  useDisclosure,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverArrow,
 } from '@chakra-ui/react'
 import { Collapse } from '@chakra-ui/transition'
 import {
@@ -24,7 +30,7 @@ import {
 } from 'iconsax-react'
 import { useColorMode } from '@/components/ui/color-mode'
 import { Image } from '@chakra-ui/react'
-import { FaArrowLeft, FaChevronDown, FaChevronLeft } from 'react-icons/fa'
+import { FaArrowLeft, FaChevronDown } from 'react-icons/fa'
 
 const sidebarItems = [
   { name: 'Home', icon: Home2, href: '/' },
@@ -34,7 +40,6 @@ const sidebarItems = [
   { name: 'Agenda', icon: Calendar, href: '/agenda' },
   {
     name: 'My Department',
-    hasSubmenu: true,
     icon: Buildings2,
     href: '/department',
     items: [
@@ -45,7 +50,7 @@ const sidebarItems = [
       { name: 'Agenda', href: '/agenda-sub' },
       { name: 'Follow up system', href: '/follow-up' },
       { name: 'Group Settings', href: '/group-settings' },
-    ]
+    ],
   },
   { name: 'Phone numbers', icon: Call, href: '/phone' },
   { name: 'My to do Protocols', icon: SecuritySafe, href: '/protocols' },
@@ -56,19 +61,26 @@ const sidebarItems = [
     name: 'Admin',
     icon: Setting2,
     href: '/admin',
-    hasSubmenu: true,
     items: [
       { name: 'Agenda', href: '/admin/agenda' },
       { name: 'News', href: '/admin/news' },
       { name: 'Poll', href: '/admin/poll' },
       { name: 'Department Rules', href: '/admin/rules' },
       { name: 'Follow up system', href: '/admin/follow-up' },
-    ]
-  }
+    ],
+  },
 ]
 
-const SidebarItem = ({ item, isSubItem = false }: any) => {
-  const { open, onToggle } = useDisclosure()
+type SidebarItemProps = {
+  item: any
+  isSubItem?: boolean
+  collapsed?: boolean
+  setCollapsed?: React.Dispatch<React.SetStateAction<boolean>> 
+}
+
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = false, collapsed = false, setCollapsed }) => {
+  const collapse = useDisclosure()
   const { colorMode } = useColorMode()
   const bg = colorMode === 'light' ? 'white' : 'gray.800'
   const hoverBg = colorMode === 'light' ? 'green.50' : 'gray.700'
@@ -76,29 +88,65 @@ const SidebarItem = ({ item, isSubItem = false }: any) => {
   const textColor = colorMode === 'light' ? 'gray.700' : 'gray.200'
   const activeTextColor = colorMode === 'light' ? 'green.600' : 'green.200'
 
-  if (item.isSection) {
+  if (collapsed) {
     return (
-      <Box w="full">
-        <Text
-          fontSize="xs"
-          fontWeight="semibold"
-          color="gray.500"
-          textTransform="uppercase"
-          mb={2}
-          px={4}
-        >
-          {item.name}
-        </Text>
-        <VStack gap={1} align="stretch">
-          {item.items?.map((subItem: any) => (
-            <SidebarItem key={subItem.name} item={subItem} isSubItem />
-          ))}
-        </VStack>
-      </Box>
+      <Flex w="full" align="center" justify="center" py={2}>
+        {item.items ? (
+          <Popover.Root>
+            <PopoverTrigger>
+              <Flex
+                as="button"
+                align="center"
+                justify="center"
+                w="48px"
+                h="48px"
+                borderRadius="md"
+                _hover={{ bg: hoverBg }}
+                onClick={() => setCollapsed && setCollapsed(false)}
+              >
+                {item.icon && <item.icon size={26} color="currentColor" />}
+              </Flex>
+
+            </PopoverTrigger>
+            <PopoverContent w="220px" borderRadius="md" boxShadow="md">
+              <PopoverArrow />
+              <PopoverBody p={2}>
+                <VStack gap={1} align="stretch">
+                  {item.items.map((sub: any) => (
+                    <Box
+                      key={sub.name}
+                      px={3}
+                      py={2}
+                      borderRadius="md"
+                      cursor="pointer"
+                      _hover={{ bg: hoverBg }}
+                    >
+                      <Text fontSize="sm">{sub.name}</Text>
+                    </Box>
+                  ))}
+                </VStack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover.Root>
+        ) : (
+          <Flex
+            as="button"
+            align="center"
+            justify="center"
+            w="48px"
+            h="48px"
+            borderRadius="md"
+            _hover={{ bg: hoverBg }}
+            onClick={() => setCollapsed && setCollapsed(false)}
+          >
+            {item.icon && <item.icon size={26} color="currentColor" />}
+          </Flex>
+        )}
+      </Flex>
     )
   }
 
-
+  // ---------- EXPANDED (full width with text + inline collapse) ----------
   return (
     <Box w="full">
       <Flex
@@ -109,46 +157,66 @@ const SidebarItem = ({ item, isSubItem = false }: any) => {
         bg={item.active ? activeBg : 'transparent'}
         color={item.active ? activeTextColor : textColor}
         _hover={{ bg: item.active ? activeBg : hoverBg }}
-        onClick={item.hasSubmenu ? onToggle : undefined}
+        onClick={item.items ? collapse.onToggle : undefined}
         borderRadius="md"
         mx={2}
       >
-        <HStack gap={2} flex={1}>
-          {item.icon && <item.icon size="20" color="currentColor" />}
+        <HStack gap={3} flex={1}>
+          {item.icon && <item.icon size={20} color="currentColor" />}
           <Text fontSize="sm" fontWeight={item.active ? 'semibold' : 'medium'}>
             {item.name}
           </Text>
         </HStack>
-        {item.hasSubmenu && (
+
+        {/* chevron for items that have subitems */}
+        {item.items && (
           <Icon
-            boxSize={4}
-            transform={open ? 'rotate(180deg)' : 'rotate(0deg)'}
-            transition="transform 0.2s"
-          ><FaChevronDown size="12" /></Icon>
+            as={FaChevronDown}
+            boxSize={3}
+            transform={collapse.open ? 'rotate(180deg)' : 'rotate(0deg)'}
+            transition="transform 0.18s"
+          />
         )}
       </Flex>
 
-      {item.hasSubmenu && (
-        <Collapse in={open}>
-          <VStack gap={1} align="stretch" pl={4} mt={1}>
-            {item.items?.map((subItem: any) => (
-              <SidebarItem key={subItem.name} item={subItem} isSubItem />
-            ))}
-          </VStack>
-        </Collapse>
-      )}
+      {item.items && (
+  <Collapse in={collapse.open}>
+    <VStack gap={1} align="stretch" pl={4} mt={1} pr={2}>
+      {item.items.map((sub: any) => (
+        <Box
+          key={sub.name}
+          px={4}
+          py={2}
+          borderRadius="md"
+          cursor="pointer"
+          bg={sub.active ? activeBg : 'transparent'} // ✅ active background
+          color={sub.active ? activeTextColor : textColor} // ✅ active text color
+          _hover={{ bg: sub.active ? activeBg : hoverBg }} // ✅ hover still works
+        >
+          <Text fontSize="sm" fontWeight={sub.active ? 'semibold' : 'normal'}>
+            {sub.name}
+          </Text>
+        </Box>
+      ))}
+    </VStack>
+  </Collapse>
+)}
+
     </Box>
   )
 }
 
-const Sidebar = () => {
+const Sidebar: React.FC = () => {
   const { colorMode } = useColorMode()
   const bg = colorMode === 'light' ? 'white' : 'gray.800'
   const borderColor = colorMode === 'light' ? 'gray.200' : 'gray.700'
 
+  const [collapsed, setCollapsed] = React.useState(false)
+
   return (
     <Box
-      w="280px"
+      w={collapsed ? '80px' : '280px'}
+      transition="width 0.18s"
       bg={bg}
       borderRight="1px"
       borderColor={borderColor}
@@ -157,27 +225,42 @@ const Sidebar = () => {
       position="sticky"
       top={0}
     >
-      {/* Logo */}
-      <Box
+      {/* Logo + Toggle */}
+      <Flex
+        borderBottom="1px"
         borderColor={borderColor}
-        display="flex"
-        justifyContent="between"
-        alignItems="center"
+        justify="space-between"
+        align="center"
+        px={4}
+        py={3}
       >
         <Image
           src="./logo.svg"
           alt="Logo"
-          boxSize="150px"
+          boxSize={collapsed ? '48px' : '120px'}
           objectFit="contain"
         />
 
-        <FaArrowLeft className='bg-gray-200 p-6 ' />
-      </Box>
+        {!collapsed && ( 
+          <IconButton
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            size="sm"
+            bg="gray.200"
+            _hover={{ bg: 'gray.300' }}
+            borderRadius="full"
+            onClick={() => setCollapsed((s) => !s)}
+            transform={collapsed ? 'rotate(180deg)' : 'rotate(0deg)'}
+          >
+            <FaArrowLeft className='text-gray-700' />
+          </IconButton>
+        )}
+      </Flex>
+
 
       {/* Navigation */}
       <VStack gap={2} align="stretch" py={4}>
         {sidebarItems.map((item) => (
-          <SidebarItem key={item.name} item={item} />
+          <SidebarItem key={item.name} item={item} collapsed={collapsed} setCollapsed={setCollapsed} />
         ))}
       </VStack>
     </Box>
