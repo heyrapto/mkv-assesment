@@ -30,6 +30,8 @@ import {
   ArrowLeft2,
   Filter,
   Category,
+  RowHorizontal,
+  RowVertical,
 } from "iconsax-react"
 import { FaArrowAltCircleLeft, FaArrowCircleLeft, FaArrowLeft, FaCalendarWeek, FaEllipsisV, FaFileExport, FaPlus, FaPlusCircle, FaToggleOff } from "react-icons/fa"
 import MainLayout from "./layout"
@@ -305,9 +307,19 @@ const TaskManagement = () => {
         <Flex 
         justify="space-between"
         align="center"
-        className="bg-[#E9F5F7] p-4"
+        className="bg-[#E9F5F7] rounded-md"
+        padding="10px"
         >
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+        <HStack className="flex gap-2 bg-white h-[40px]" padding="10px">
+          <IconButton backgroundColor="gray.100" color="gray.900" height="28px">
+            <RowHorizontal className="" />
+          </IconButton>
+          <IconButton backgroundColor="#75C5C1" color="white" height="28px">
+            <RowVertical className="" />
+          </IconButton>
+        </HStack>
         </Flex>
 
         {/* Tabs */}
