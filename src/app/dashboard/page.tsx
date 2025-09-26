@@ -240,7 +240,7 @@ const TaskManagement = () => {
 
   return (
     <MainLayout>
-      <VStack gap={6} align="stretch" className="bg-white rounded-md">
+      <VStack gap={6} align="stretch" className="bg-white rounded-md" padding="30px">
         {/* Header */}
         <Flex justify="space-between"
           align="center"
