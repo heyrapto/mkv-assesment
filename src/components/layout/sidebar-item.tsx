@@ -29,16 +29,17 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = fals
   
     if (collapsed) {
       return (
-        <Flex w="full" align="center" justify="center" py={2}>
+        <Flex w="full" align="center" justify="center" py={2} cursor="pointer">
           {item.items ? (
             <Popover.Root>
-              <PopoverTrigger>
+              <PopoverTrigger cursor="pointer">
                 <Flex
                   as="button"
                   align="center"
                   justify="center"
                   w="48px"
                   h="48px"
+                  cursor="pointer"
                   borderRadius="md"
                   _hover={{ bg: hoverBg }}
                   onClick={() => setCollapsed && setCollapsed(false)}
@@ -75,6 +76,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = fals
               w="48px"
               h="48px"
               borderRadius="md"
+              cursor="pointer"
               _hover={{ bg: hoverBg }}
               onClick={() => setCollapsed && setCollapsed(false)}
             >
