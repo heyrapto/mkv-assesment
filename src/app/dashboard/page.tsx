@@ -16,14 +16,16 @@ import {
   Tabs,
   Flex,
   Select,
+  Portal,
+  createListCollection,
 } from '@chakra-ui/react'
 
 import { useColorMode } from '@/components/ui/color-mode'
 
-import { 
-  SearchNormal1, 
-  Add, 
-  Export, 
+import {
+  SearchNormal1,
+  Add,
+  Export,
   Setting4,
   ArrowLeft2,
   Filter,
@@ -32,7 +34,6 @@ import {
 import { FaEllipsisV } from 'react-icons/fa'
 import MainLayout from './layout'
 
-// Mock data
 const mockTasks = [
   {
     id: 1,
@@ -79,8 +80,7 @@ const mockTasks = [
   }
 ]
 
-// Utility function
-const getPriorityColor = (priority) => {
+const getPriorityColor = (priority: string) => {
   switch (priority) {
     case 'Urgent': return 'red'
     case 'Important': return 'orange'
@@ -89,14 +89,12 @@ const getPriorityColor = (priority) => {
   }
 }
 
-// Custom Table Component (since Table components might not be available)
-const TaskTable = ({ tasks }) => {
+const TaskTable = ({ tasks }: any) => {
   const { colorMode } = useColorMode()
   const borderColor = colorMode === 'light' ? '#E2E8F0' : '#4A5568'
-  
+
   return (
     <Box overflowX="auto">
-      {/* Table Header */}
       <Box display="grid" gridTemplateColumns="2fr 1.5fr 1fr 1fr auto" gap={4} p={4} borderBottom="1px solid" borderColor={borderColor}>
         <Text color="gray.500" fontWeight="medium" fontSize="sm">Name</Text>
         <Text color="gray.500" fontWeight="medium" fontSize="sm">Date</Text>
@@ -104,9 +102,8 @@ const TaskTable = ({ tasks }) => {
         <Text color="gray.500" fontWeight="medium" fontSize="sm">Priority</Text>
         <Box></Box>
       </Box>
-      
-      {/* Table Body */}
-      {tasks.map((task, index) => (
+
+      {tasks.map((task: any, index: any) => (
         <Box
           key={task.id}
           display="grid"
@@ -119,14 +116,11 @@ const TaskTable = ({ tasks }) => {
         >
           <Text fontWeight="medium">{task.name}</Text>
           <Text fontSize="sm" color="gray.600">{task.date}</Text>
-          <AvatarGroup size="sm" max={2}>
-            {task.assignee.map((user, idx) => (
-              <Avatar.Root
-                key={idx}
-                name={user.name}
-                src={user.avatar}
-                size="sm"
-              />
+          <AvatarGroup size="sm">
+            {task.assignee.map((user: any, idx: number) => (
+              <Avatar.Root key={idx}>
+                <Avatar.Image title={user.name} src={user.avatar} />
+              </Avatar.Root>
             ))}
           </AvatarGroup>
           <Badge
@@ -139,20 +133,16 @@ const TaskTable = ({ tasks }) => {
           >
             {task.priority}
           </Badge>
-          <IconButton
-            icon={<FaEllipsisV />}
-            variant="ghost"
-            size="sm"
-            aria-label="More options"
-          />
+          <IconButton variant="ghost" size="sm" aria-label="More options">
+            <FaEllipsisV />
+          </IconButton>
         </Box>
       ))}
     </Box>
   )
 }
 
-// Custom Input Group Component
-const SearchInput = ({ searchTerm, setSearchTerm }) => {
+const SearchInput = ({ searchTerm, setSearchTerm }: any) => {
   return (
     <Box position="relative" maxW="400px">
       <Box position="absolute" left={3} top="50%" transform="translateY(-50%)" zIndex={2}>
@@ -171,15 +161,34 @@ const SearchInput = ({ searchTerm, setSearchTerm }) => {
   )
 }
 
-// Main Component
+const rowsPerPageOptions = createListCollection({
+  items: [
+    { label: "10", value: "10" },
+    { label: "25", value: "25" },
+    { label: "50", value: "50" },
+  ],
+})
+
 const TaskManagement = () => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
   const { colorMode } = useColorMode()
   const bg = colorMode === 'light' ? 'white' : 'gray.800'
-  
+
   const todoTasks = mockTasks.filter(task => task.status === 'todo')
   const progressTasks = mockTasks.filter(task => task.status === 'progress')
   const completeTasks = mockTasks.filter(task => task.status === 'complete')
+
+  const filteredTasks = mockTasks.filter((task) =>
+    task.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const totalPages = Math.ceil(filteredTasks.length / rowsPerPage)
+
+  // paginate
+  const startIndex = (currentPage - 1) * rowsPerPage
+  const currentTasks = filteredTasks.slice(startIndex, startIndex + rowsPerPage)
 
   return (
     <MainLayout>
@@ -187,49 +196,30 @@ const TaskManagement = () => {
         {/* Page Header */}
         <Flex justify="space-between" align="center">
           <HStack gap={4}>
-            <IconButton
-              icon={<ArrowLeft2 size="20" />}
-              variant="ghost"
-              size="sm"
-              aria-label="Go back"
-            />
+            <IconButton variant="ghost" size="sm" aria-label="Go back">
+              <ArrowLeft2 size="20" />
+            </IconButton>
             <Heading size="lg" fontWeight="semibold">
               Afdeling Kwaliteit
             </Heading>
-            <IconButton
-              icon={<Setting4 size="20" />}
-              variant="ghost"
-              size="sm"
-              aria-label="Settings"
-            />
-            <IconButton
-              icon={<Category size="20" />}
-              variant="ghost"
-              size="sm"
-              aria-label="Category"
-            />
-            <IconButton
-              icon={<Filter size="20" />}
-              variant="ghost"
-              size="sm"
-              aria-label="Filter"
-            />
+            <IconButton variant="ghost" size="sm" aria-label="Settings">
+              <Setting4 size="20" />
+            </IconButton>
+            <IconButton variant="ghost" size="sm" aria-label="Category">
+              <Category size="20" />
+            </IconButton>
+            <IconButton variant="ghost" size="sm" aria-label="Filter">
+              <Filter size="20" />
+            </IconButton>
           </HStack>
-          
+
           <HStack gap={3}>
-            <Button
-              leftIcon={<Export size="18" />}
-              variant="outline"
-              size="sm"
-              colorScheme="gray"
-            >
+            <Button variant="outline" size="sm" colorScheme="gray">
+              <Export size="18" />
               Export xlsx
             </Button>
-            <Button
-              leftIcon={<Add size="18" />}
-              colorScheme="teal"
-              size="sm"
-            >
+            <Button colorScheme="teal" size="sm">
+              <Add size="18" />
               Add Task
             </Button>
           </HStack>
@@ -239,108 +229,127 @@ const TaskManagement = () => {
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
         {/* Tabs */}
-        <Tabs.Root variant="soft-rounded" colorScheme="blue">
+        <Tabs.Root colorScheme="blue" defaultValue={"all"}>
           <Tabs.List bg="gray.50" p={1} borderRadius="lg" display="inline-flex">
-            <Tabs.Trigger fontSize="sm" px={4}>
+            <Tabs.Trigger value={"todo"} fontSize="sm" px={4}>
               <HStack gap={2}>
                 <Box w={2} h={2} bg="purple.400" borderRadius="full" />
                 <Text>To Do</Text>
-                <Badge
-                  bg="gray.200"
-                  color="gray.600"
-                  borderRadius="full"
-                  px={2}
-                  fontSize="xs"
-                >
+                <Badge bg="gray.200" color="gray.600" borderRadius="full" px={2} fontSize="xs">
                   {todoTasks.length}
                 </Badge>
               </HStack>
             </Tabs.Trigger>
-            <Tabs.Trigger fontSize="sm" px={4}>
+            <Tabs.Trigger value={"progress"} fontSize="sm" px={4}>
               <HStack gap={2}>
                 <Box w={2} h={2} bg="orange.400" borderRadius="full" />
                 <Text>In Progress</Text>
-                <Badge
-                  bg="gray.200"
-                  color="gray.600"
-                  borderRadius="full"
-                  px={2}
-                  fontSize="xs"
-                >
+                <Badge bg="gray.200" color="gray.600" borderRadius="full" px={2} fontSize="xs">
                   {progressTasks.length}
                 </Badge>
               </HStack>
             </Tabs.Trigger>
-            <Tabs.Trigger fontSize="sm" px={4}>
+            <Tabs.Trigger value={"complete"} fontSize="sm" px={4}>
               <HStack gap={2}>
                 <Box w={2} h={2} bg="green.400" borderRadius="full" />
                 <Text>Complete</Text>
-                <Badge
-                  bg="gray.200"
-                  color="gray.600"
-                  borderRadius="full"
-                  px={2}
-                  fontSize="xs"
-                >
+                <Badge bg="gray.200" color="gray.600" borderRadius="full" px={2} fontSize="xs">
                   {completeTasks.length}
                 </Badge>
               </HStack>
             </Tabs.Trigger>
           </Tabs.List>
 
-            <Tabs.Content px={0}>
-              <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
-                <TaskTable tasks={todoTasks} />
-              </Box>
+          <Tabs.Content value="all" px={0}>
+            <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
+              <TaskTable tasks={mockTasks} />
+            </Box>
             </Tabs.Content>
-            <Tabs.Content px={0}>
-              <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
-                <TaskTable tasks={progressTasks} />
-              </Box>
-            </Tabs.Content>
-            <Tabs.Content px={0}>
-              <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
-                <TaskTable tasks={completeTasks} />
-              </Box>
-            </Tabs.Content>
+          <Tabs.Content value="todo" px={0}>
+            <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
+              <TaskTable tasks={todoTasks} />
+            </Box>
+          </Tabs.Content>
+          <Tabs.Content value="progress" px={0}>
+            <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
+              <TaskTable tasks={progressTasks} />
+            </Box>
+          </Tabs.Content>
+          <Tabs.Content value="complete" px={0}>
+            <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
+              <TaskTable tasks={completeTasks} />
+            </Box>
+          </Tabs.Content>
         </Tabs.Root>
 
         {/* Pagination */}
         <Flex justify="space-between" align="center" pt={4}>
           <HStack gap={2}>
             <IconButton
-              icon={<ArrowLeft2 size="16" />}
               size="sm"
               variant="ghost"
-              isDisabled
               aria-label="Previous page"
-            />
-            <Button size="sm" colorScheme="blue" variant="solid">
-              1
-            </Button>
-            <Button size="sm" variant="ghost">2</Button>
-            <Button size="sm" variant="ghost">3</Button>
-            <Button size="sm" variant="ghost">4</Button>
-            <Button size="sm" variant="ghost">5</Button>
-            <Text fontSize="sm" color="gray.500">...</Text>
-            <Button size="sm" variant="ghost">100</Button>
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            >
+              <ArrowLeft2 size="16" />
+            </IconButton>
+
+            {[...Array(totalPages)].map((_, idx) => (
+              <Button
+                key={idx}
+                size="sm"
+                variant={currentPage === idx + 1 ? 'solid' : 'ghost'}
+                colorScheme={currentPage === idx + 1 ? 'blue' : 'gray'}
+                onClick={() => setCurrentPage(idx + 1)}
+              >
+                {idx + 1}
+              </Button>
+            ))}
+
             <IconButton
-              icon={<ArrowLeft2 size="16" style={{ transform: 'rotate(180deg)' }} />}
               size="sm"
               variant="ghost"
               aria-label="Next page"
-            />
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+            >
+              <ArrowLeft2 size="16" style={{ transform: 'rotate(180deg)' }} />
+            </IconButton>
           </HStack>
-          
+
+          {/* Rows per page */}
           <HStack gap={2}>
             <Text fontSize="sm" color="gray.600">
               Rows Per page:
             </Text>
-            {/* <Select.label size="sm" defaultValue="10" w="70px">
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-            </Select.label> */}
+            <Select.Root
+              collection={rowsPerPageOptions}
+              size="sm"
+              value={[rowsPerPage.toString()]}
+              onValueChange={(e: any) => {
+                setRowsPerPage(Number(e.value[0]))
+                setCurrentPage(1) // reset to first page
+              }}
+            >
+              <Select.Control w="70px">
+                <Select.Trigger>
+                  <Select.ValueText />
+                </Select.Trigger>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {rowsPerPageOptions.items.map((item) => (
+                      <Select.Item key={item.value} item={item}>
+                        {item.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
           </HStack>
         </Flex>
       </VStack>
@@ -348,4 +357,4 @@ const TaskManagement = () => {
   )
 }
 
-export default TaskManagement
+export default TaskManagement;

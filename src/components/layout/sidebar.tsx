@@ -75,7 +75,7 @@ type SidebarItemProps = {
   item: any
   isSubItem?: boolean
   collapsed?: boolean
-  setCollapsed?: React.Dispatch<React.SetStateAction<boolean>> 
+  setCollapsed?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 
@@ -146,7 +146,6 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = false, coll
     )
   }
 
-  // ---------- EXPANDED (full width with text + inline collapse) ----------
   return (
     <Box w="full">
       <Flex
@@ -180,27 +179,27 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = false, coll
       </Flex>
 
       {item.items && (
-  <Collapse in={collapse.open}>
-    <VStack gap={1} align="stretch" pl={4} mt={1} pr={2}>
-      {item.items.map((sub: any) => (
-        <Box
-          key={sub.name}
-          px={4}
-          py={2}
-          borderRadius="md"
-          cursor="pointer"
-          bg={sub.active ? activeBg : 'transparent'} // ✅ active background
-          color={sub.active ? activeTextColor : textColor} // ✅ active text color
-          _hover={{ bg: sub.active ? activeBg : hoverBg }} // ✅ hover still works
-        >
-          <Text fontSize="sm" fontWeight={sub.active ? 'semibold' : 'normal'}>
-            {sub.name}
-          </Text>
-        </Box>
-      ))}
-    </VStack>
-  </Collapse>
-)}
+        <Collapse in={collapse.open}>
+          <VStack gap={1} align="stretch" pl={4} mt={1} pr={2}>
+            {item.items.map((sub: any) => (
+              <Box
+                key={sub.name}
+                px={4}
+                py={2}
+                borderRadius="md"
+                cursor="pointer"
+                bg={sub.active ? activeBg : 'transparent'} // ✅ active background
+                color={sub.active ? activeTextColor : textColor} // ✅ active text color
+                _hover={{ bg: sub.active ? activeBg : hoverBg }} // ✅ hover still works
+              >
+                <Text fontSize="sm" fontWeight={sub.active ? 'semibold' : 'normal'}>
+                  {sub.name}
+                </Text>
+              </Box>
+            ))}
+          </VStack>
+        </Collapse>
+      )}
 
     </Box>
   )
@@ -241,7 +240,7 @@ const Sidebar: React.FC = () => {
           objectFit="contain"
         />
 
-        {!collapsed && ( 
+        {!collapsed && (
           <IconButton
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             size="sm"
