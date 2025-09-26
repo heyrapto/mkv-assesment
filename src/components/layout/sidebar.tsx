@@ -2,23 +2,12 @@ import React from 'react'
 import {
   Box,
   VStack,
-  HStack,
-  Text,
-  Icon,
   Flex,
   IconButton,
-  useDisclosure,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverBody,
-  PopoverArrow,
 } from '@chakra-ui/react'
-import { Collapse } from '@chakra-ui/transition'
 import { useColorMode } from '@/components/ui/color-mode'
 import { Image } from '@chakra-ui/react'
-import { FaArrowLeft, FaChevronDown } from 'react-icons/fa'
-import { SidebarItemProps } from '@/types/sidebar'
+import { FaArrowLeft } from 'react-icons/fa'
 import { sidebarItems } from '@/constants'
 import { SidebarItem } from './sidebar-item'
 

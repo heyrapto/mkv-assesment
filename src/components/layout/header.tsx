@@ -18,8 +18,7 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/menu"
-import { FaBell, FaChevronDown } from "react-icons/fa"
-import { LuLink, LuSettings } from "react-icons/lu"
+import { FaChevronDown } from "react-icons/fa"
 import SearchInput from "../ui/search-input"
 import { Logo } from "../ui/logos"
 import { actions, badges, menuItems } from "@/constants"

@@ -17,8 +17,7 @@ import {
   Flex,
   Select,
   Portal,
-  createListCollection,
-  Progress,
+  createListCollection
 } from "@chakra-ui/react"
 
 import { useColorMode } from "@/components/ui/color-mode"
@@ -194,7 +193,6 @@ const TaskTable = ({ tasks }: any) => {
               {task.priority}
             </Text>
           </HStack>
-
 
           <IconButton
             aria-label="More options"
