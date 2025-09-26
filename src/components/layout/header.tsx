@@ -22,29 +22,20 @@ import { FaBell, FaChevronDown } from "react-icons/fa"
 import { LuLink, LuSettings } from "react-icons/lu"
 import SearchInput from "../ui/search-input"
 import { Logo } from "../ui/logos"
+import { actions, badges, menuItems } from "@/constants"
+
+export const logos = [
+  { id: "first", component: <Logo.First /> },
+  { id: "second", component: <Logo.Second /> },
+  { id: "third", component: <Logo.Third /> },
+  { id: "fourth", component: <Logo.Fourth /> },
+]
 
 const Header = () => {
   const { colorMode } = useColorMode()
   const [search, setSearch] = useState("")
   const bg = colorMode === "light" ? "white" : "gray.800"
   const borderColor = colorMode === "light" ? "gray.200" : "gray.700"
-
-  const logos = [
-    { id: "first", component: <Logo.First /> },
-    { id: "second", component: <Logo.Second /> },
-    { id: "third", component: <Logo.Third /> },
-    { id: "fourth", component: <Logo.Fourth /> },
-  ]
-
-  const badges = ["VIM", "LMS", "BHV", "DataLek"]
-
-  const menuItems = ["Profile", "Settings", "Logout"]
-
-  const actions = [
-    { icon: LuLink, label: "Settings" },
-    { icon: FaBell, label: "Notifications" },
-  ]
-  
 
   return (
     <Box
@@ -58,41 +49,41 @@ const Header = () => {
       zIndex={100}
     >
       <Flex
-  justify="space-between"
-  align="center"
-  w="100%"
->
-  {/* LEFT */}
-  <Flex align="center" flex="1" minW="200px">
-    <SearchInput
-      value={search}
-      onChange={setSearch}
-      placeholder="Search tasks..."
-      maxW="500px"
-    />
-  </Flex>
+        justify="space-between"
+        align="center"
+        w="100%"
+      >
+        {/* LEFT */}
+        <Flex align="center" flex="1" minW="200px">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search tasks..."
+            maxW="500px"
+          />
+        </Flex>
 
-  {/* CENTER */}
-  <Flex
-    align="center"
-    justify="center"
-    gap={4}
-    flex="2"
-  >
-    {/* Logos */}
-    <Flex gap={3}>
-      {logos.map((logo) => (
-        <Box
-          key={logo.id}
-          className="h-[50px] w-[50px] flex items-center justify-center border border-[#EEF1F9] rounded-md"
+        {/* CENTER */}
+        <Flex
+          align="center"
+          justify="center"
+          gap={4}
+          flex="2"
         >
-          {logo.component}
-        </Box>
-      ))}
-    </Flex>
+          {/* Logos */}
+          <Flex gap={3}>
+            {logos.map((logo) => (
+              <Box
+                key={logo.id}
+                className="h-[50px] w-[50px] flex items-center justify-center border border-[#EEF1F9] rounded-md"
+              >
+                {logo.component}
+              </Box>
+            ))}
+          </Flex>
 
-    {/* Badges */}
-    <Button
+          {/* Badges */}
+          <Button
             variant="ghost"
             size="sm"
             color="#fff"
@@ -104,59 +95,59 @@ const Header = () => {
           >
             Melding maken
           </Button>
-    <Flex gap={2}>
-      {badges.map((label) => (
-        <Badge
-          key={label}
-          className="flex items-center justify-center h-[38px] min-w-[60px] rounded-[10px] font-semibold"
-          backgroundColor="#75C5C1"
-          variant="solid"
-          px={2}
-          py={1}
+          <Flex gap={2}>
+            {badges.map((label) => (
+              <Badge
+                key={label}
+                className="flex items-center justify-center h-[38px] min-w-[60px] rounded-[10px] font-semibold"
+                backgroundColor="#75C5C1"
+                variant="solid"
+                px={2}
+                py={1}
+              >
+                {label}
+              </Badge>
+            ))}
+          </Flex>
+        </Flex>
+
+        {/* RIGHT */}
+        <Flex
+          align="center"
+          justify="flex-end"
+          flex="1"
+          gap={3}
         >
-          {label}
-        </Badge>
-      ))}
-    </Flex>
-  </Flex>
+          {/* Action buttons */}
+          {actions.map(({ icon: Icon, label }) => (
+            <IconButton key={label} aria-label={label} variant="ghost" size="sm">
+              <Icon size="22" />
+            </IconButton>
+          ))}
 
-  {/* RIGHT */}
-  <Flex
-    align="center"
-    justify="flex-end"
-    flex="1"
-    gap={3}
-  >
-    {/* Action buttons */}
-    {actions.map(({ icon: Icon, label }) => (
-      <IconButton key={label} aria-label={label} variant="ghost" size="sm">
-        <Icon size="22" />
-      </IconButton>
-    ))}
+          {/* User Menu */}
+          <Menu>
+            <MenuButton as={Button} variant="ghost" size="sm">
+              <HStack gap={2}>
+                <Avatar.Root size="sm" title="Hi Paul">
+                  <Avatar.Image src="https://bit.ly/sage-adebayo" alt="Paul" />
+                  <Avatar.Fallback>PA</Avatar.Fallback>
+                </Avatar.Root>
+                <Text fontSize="sm" fontWeight="medium">
+                  Hi Paul
+                </Text>
+                <FaChevronDown size="12" />
+              </HStack>
+            </MenuButton>
 
-    {/* User Menu */}
-    <Menu>
-      <MenuButton as={Button} variant="ghost" size="sm">
-        <HStack gap={2}>
-          <Avatar.Root size="sm" title="Hi Paul">
-            <Avatar.Image src="https://bit.ly/sage-adebayo" alt="Paul" />
-            <Avatar.Fallback>PA</Avatar.Fallback>
-          </Avatar.Root>
-          <Text fontSize="sm" fontWeight="medium">
-            Hi Paul
-          </Text>
-          <FaChevronDown size="12" />
-        </HStack>
-      </MenuButton>
-
-      <MenuList backgroundColor="#fff" width="300px" className='flex flex-col gap-4 rounded-xl p-[30px]' padding="30px">
-        {menuItems.map((item) => (
-          <MenuItem key={item}>{item}</MenuItem>
-        ))}
-      </MenuList>
-    </Menu>
-  </Flex>
-</Flex>
+            <MenuList backgroundColor="#fff" width="300px" className='flex flex-col gap-4 rounded-xl p-[30px]' padding="30px">
+              {menuItems.map((item) => (
+                <MenuItem key={item}>{item}</MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </Flex>
+      </Flex>
 
     </Box>
   )
