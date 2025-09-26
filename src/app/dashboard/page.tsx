@@ -18,6 +18,7 @@ import {
   Select,
   Portal,
   createListCollection,
+  Progress,
 } from "@chakra-ui/react"
 
 import { useColorMode } from "@/components/ui/color-mode"
@@ -29,15 +30,16 @@ import {
 import {
   FaArrowLeft,
   FaCalendarWeek,
+  FaCapsules,
+  FaCheckCircle,
   FaEllipsisV,
   FaFileExport,
   FaPlusCircle,
   FaToggleOff,
 } from "react-icons/fa"
-import { LuListFilter } from "react-icons/lu"
+import { LuColumns2, LuListFilter, LuRows2 } from "react-icons/lu"
 import MainLayout from "./layout"
 
-// ✅ Mock Tasks
 const mockTasks = [
   {
     id: 1,
@@ -224,10 +226,9 @@ const TaskManagement = () => {
   }
 
   const tabItems = [
-    { value: "all", label: "All", color: "gray.200" },
-    { value: "todo", label: "To Do", color: "purple.400" },
-    { value: "progress", label: "In Progress", color: "orange.400" },
-    { value: "complete", label: "Complete", color: "green.400" },
+    { value: "todo", label: "To Do", icon: <LuListFilter />, color: "#A78BFA" },
+    { value: "progress", label: "In Progress", icon: <FaCapsules />, color: "#FBBF24" },
+    { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#2DD4BF" },
   ]
 
   const headerActions = [
@@ -309,43 +310,73 @@ const TaskManagement = () => {
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <HStack className="flex gap-2 bg-white h-[40px]" padding="10px">
             <IconButton backgroundColor="gray.100" color="gray.900" height="28px">
-              <RowHorizontal />
+              <LuRows2 />
             </IconButton>
             <IconButton backgroundColor="#75C5C1" color="white" height="28px">
-              <RowVertical />
+              <LuColumns2 />
             </IconButton>
           </HStack>
         </Flex>
 
         {/* Tabs */}
-        <Tabs.Root colorScheme="blue" defaultValue={"all"}>
-          <Tabs.List bg="gray.50" p="10px" borderRadius="lg" marginBottom="10px" className="w-full gap-4" display="inline-flex">
+        <Tabs.Root
+          defaultValue="todo"
+          variant="plain"
+        >
+          <HStack bg="gray.50" p="10px" borderRadius="lg" marginBottom="10px" className="w-full gap-4" display="inline-flex">
             {tabItems.map((tab) => (
-              <Tabs.Trigger key={tab.value} value={tab.value} fontSize="sm" px={4} className="min-w-[176px]" backgroundColor="#fff">
+              <Tabs.Trigger
+                key={tab.value}
+                value={tab.value}
+                className="flex items-center justify-between gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium transition-all min-w-[176px]"
+                paddingX="8px"
+                paddingY="2px"
+                backgroundColor="#fff"
+                _selected={{
+                  bg: tab.color,
+                  color: "white",
+                  borderColor: tab.color,
+                  fontWeight: "semibold",
+                }}
+              >
+                {/* Left side: icon + label */}
                 <HStack gap={2}>
-                  {tab.value !== "all" && (
-                    <Box w={2} h={2} bg={tab.color} borderRadius="full" />
-                  )}
-                  <Text>{tab.label}</Text>
-                  <Badge
-                    bg="gray.200"
-                    color="gray.600"
+                  <Box
+                    as="span"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    w="20px"
+                    h="20px"
                     borderRadius="full"
-                    px={2}
-                    fontSize="xs"
+                    bg="white"
+                    color={tab.color}
+                    fontSize="12px"
                   >
-                    ({taskGroups[tab.value].length})
-                  </Badge>
+                    {tab.icon}
+                  </Box>
+                  <Text>{tab.label}</Text>
                 </HStack>
+
+                {/* Right side: count in ( ) */}
+                <Badge
+                  bg="gray.100"
+                  color="black"
+                  borderRadius="md"
+                  px={2}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                >
+                  ({taskGroups[tab.value].length})
+                </Badge>
               </Tabs.Trigger>
             ))}
-          </Tabs.List>
+          </HStack>
 
+          {/* Tab Content */}
           {tabItems.map((tab) => (
-            <Tabs.Content key={tab.value} value={tab.value} px={0}>
-              <Box bg={bg} borderRadius="lg" overflow="hidden" border="1px" borderColor="gray.200">
-                <TaskTable tasks={tab.value === "all" ? currentTasks : taskGroups[tab.value]} />
-              </Box>
+            <Tabs.Content key={tab.value} value={tab.value}>
+              <TaskTable tasks={taskGroups[tab.value]} />
             </Tabs.Content>
           ))}
         </Tabs.Root>
