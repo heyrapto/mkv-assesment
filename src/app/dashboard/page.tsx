@@ -33,6 +33,7 @@ import {
   FaFileExport,
   FaPlusCircle,
   FaToggleOff,
+  FaToggleOn,
 } from "react-icons/fa"
 import { LuColumns2, LuFlag, LuListFilter, LuRows2 } from "react-icons/lu"
 import MainLayout from "./layout"
@@ -49,14 +50,73 @@ export interface Task {
   date: string 
   priority: "Urgent" | "Important" | "Medium" | "Low"
   status: "todo" | "progress" | "complete"
-  assignee: Array<{ name: string; avatar?: string }>
+  assignee: { name: string; avatar: string }[]
 }
+
+// Update mockTasks to match Task interface exactly
+const mockTasksTyped: Task[] = [
+  {
+    id: 1,
+    name: "MKV Intranet V2",
+    date: "04/06/2024 - 16/06/2024",
+    assignee: [
+      { name: "JI", avatar: "https://i.pravatar.cc/150?u=ji" },
+      { name: "Alex", avatar: "https://i.pravatar.cc/150?u=alex" },
+    ],
+    priority: "Medium",
+    status: "todo",
+  },
+  {
+    id: 2,
+    name: "Design System",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Sam", avatar: "https://i.pravatar.cc/150?u=sam" }],
+    priority: "Important",
+    status: "todo",
+  },
+  {
+    id: 3,
+    name: "Medical Appointment",
+    date: "16/06/2024 - 18/06/2024",
+    assignee: [
+      { name: "User 1", avatar: "https://i.pravatar.cc/150?u=user1" },
+      { name: "User 2", avatar: "https://i.pravatar.cc/150?u=user2" },
+    ],
+    priority: "Urgent",
+    status: "todo",
+  },
+  {
+    id: 4,
+    name: "Testing Data",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Chris", avatar: "https://i.pravatar.cc/150?u=chris" }],
+    priority: "Urgent",
+    status: "progress",
+  },
+  {
+    id: 5,
+    name: "Patient Request",
+    date: "16/06/2024 - 18/06/2024",
+    assignee: [{ name: "Taylor", avatar: "https://i.pravatar.cc/150?u=taylor" }],
+    priority: "Urgent",
+    status: "progress",
+  },
+  {
+    id: 6,
+    name: "Patient Meetup",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Jordan", avatar: "https://i.pravatar.cc/150?u=jordan" }],
+    priority: "Low",
+    status: "complete",
+  },
+]
 
 interface TaskTableProps {
   tasks: Task[]
+  isDenseView: boolean
 }
 
-const TaskTable = ({ tasks }: TaskTableProps) => {
+const TaskTable = ({ tasks, isDenseView }: TaskTableProps) => {
   const { colorMode } = useColorMode()
   const borderColor = colorMode === "light" ? "#E5E7EB" : "#4A5568"
 
@@ -68,7 +128,7 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
         gridTemplateColumns="2fr 1.5fr 1fr 1fr auto"
         gap={4}
         px={6}
-        py={4}
+        py={isDenseView ? 2 : 4}
         bg="#F9FAFB"
         borderBottom="1px solid"
         borderColor={borderColor}
@@ -76,11 +136,42 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
         fontSize="sm"
         color="#6B7280"
         borderTopRadius="lg"
+        position="relative"
       >
         <Text>Name</Text>
-        <Text>Date</Text>
-        <Text>Assignee</Text>
-        <Text>Priority</Text>
+        <Box position="relative">
+          <Text>Date</Text>
+          <Box
+            position="absolute"
+            right="-2"
+            top="0"
+            bottom="0"
+            width="1px"
+            bg={borderColor}
+          />
+        </Box>
+        <Box position="relative">
+          <Text>Assignee</Text>
+          <Box
+            position="absolute"
+            right="-2"
+            top="0"
+            bottom="0"
+            width="1px"
+            bg={borderColor}
+          />
+        </Box>
+        <Box position="relative">
+          <Text>Priority</Text>
+          <Box
+            position="absolute"
+            right="-2"
+            top="0"
+            bottom="0"
+            width="1px"
+            bg={borderColor}
+          />
+        </Box>
         <Box />
       </Box>
 
@@ -92,57 +183,71 @@ const TaskTable = ({ tasks }: TaskTableProps) => {
           gridTemplateColumns="2fr 1.5fr 1fr 1fr auto"
           gap={4}
           px={6}
-          py={4}
+          py={isDenseView ? 2 : 4}
           borderBottom={index !== tasks.length - 1 ? "1px solid" : "none"}
           borderColor={borderColor}
           _hover={{ bg: "#F9FAFB" }}
           transition="background-color 0.2s"
         >
-          <Text fontWeight="500" color="#111827" fontSize="sm">
+          <Text 
+            fontWeight="500" 
+            color="#111827" 
+            fontSize={isDenseView ? "xs" : "sm"}
+            lineHeight={isDenseView ? "tight" : "normal"}
+          >
             {task.name}
           </Text>
-          <Text fontSize="sm" color="#6B7280">
+          <Text 
+            fontSize={isDenseView ? "xs" : "sm"} 
+            color="#6B7280"
+            lineHeight={isDenseView ? "tight" : "normal"}
+          >
             {task.date}
           </Text>
 
-          <HStack>
-            <AvatarGroup size="sm">
+          <HStack gap={isDenseView ? 1 : 2}>
+            <AvatarGroup size={isDenseView ? "xs" : "sm"}>
               {task.assignee.map((user, idx: number) => (
-                <Avatar.Root key={idx} size="sm">
-                  <Avatar.Fallback bg="#E5E7EB" color="#374151" fontSize="xs">
+                <Avatar.Root key={idx} size={isDenseView ? "xs" : "sm"}>
+                  <Avatar.Fallback bg="#E5E7EB" color="#374151" fontSize={isDenseView ? "2xs" : "xs"}>
                     {user.name ? user.name.slice(0, 2).toUpperCase() : "NA"}
                   </Avatar.Fallback>
-                  {user.avatar && <Avatar.Image src={user.avatar} alt={user.name} />}
+                  <Avatar.Image src={user.avatar} alt={user.name} />
                 </Avatar.Root>
               ))}
             </AvatarGroup>
             {task.assignee.length > 2 && (
-              <Text fontSize="xs" color="#6B7280">
+              <Text fontSize={isDenseView ? "2xs" : "xs"} color="#6B7280">
                 +{task.assignee.length - 2}
               </Text>
             )}
           </HStack>
 
-          <HStack>
+          <HStack gap={isDenseView ? 1 : 2}>
             <LuFlag
-              size={16}
+              size={isDenseView ? 12 : 16}
               className={`${task.priority === "Urgent" ? "text-red-500" :
                 task.priority === "Important" ? "text-yellow-500" :
                   task.priority === "Medium" ? "text-blue-500" : "text-gray-500"} `}
             />
-            <Text fontSize="sm" color="#374151" fontWeight="500">
+            <Text 
+              fontSize={isDenseView ? "xs" : "sm"} 
+              color="#374151" 
+              fontWeight="500"
+              lineHeight={isDenseView ? "tight" : "normal"}
+            >
               {task.priority}
             </Text>
           </HStack>
 
           <IconButton
             aria-label="More options"
-            size="sm"
+            size={isDenseView ? "xs" : "sm"}
             variant="ghost"
             color="#6B7280"
             _hover={{ bg: "#F3F4F6" }}
           >
-            <FaEllipsisH />
+            <FaEllipsisH size={isDenseView ? 10 : 14} />
           </IconButton>
         </Box>
       ))}
@@ -187,7 +292,7 @@ const TaskManagement = () => {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [viewMode, setViewMode] = useState<"table" | "card">("table")
-  const [tasks, setTasks] = useState<Task[]>(mockTasks)
+  const [tasks, setTasks] = useState<Task[]>(mockTasksTyped)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false)
   const [isDateModalOpen, setIsDateModalOpen] = useState<boolean>(false)
   const [filters, setFilters] = useState<Filters>({
@@ -199,6 +304,7 @@ const TaskManagement = () => {
     start: "",
     end: ""
   })
+  const [isDenseView, setIsDenseView] = useState<boolean>(false)
   const { colorMode } = useColorMode()
 
   const handleTaskMove = (taskId: number, newStatus: Task['status']) => {
@@ -251,9 +357,9 @@ const TaskManagement = () => {
   const headerActions: HeaderAction[] = [
     {
       type: "icon",
-      icon: <FaToggleOff size={20} />,
-      aria: "Settings",
-      onClick: () => console.log("Settings clicked")
+      icon: isDenseView ? <FaToggleOn size={20} /> : <FaToggleOff size={20} />,
+      aria: "Toggle Dense View",
+      onClick: () => setIsDenseView(!isDenseView)
     },
     {
       type: "icon",
@@ -465,7 +571,7 @@ const TaskManagement = () => {
           {tabItems.map((tab) => (
             <Tabs.Content key={tab.value} value={tab.value}>
               {viewMode === "table" ? (
-                <TaskTable tasks={taskGroups[tab.value]} />
+                <TaskTable tasks={taskGroups[tab.value]} isDenseView={isDenseView} />
               ) : (
                 <TaskCardView tasks={taskGroups[tab.value]} onTaskMove={handleTaskMove} />
               )}
