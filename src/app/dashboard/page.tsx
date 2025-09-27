@@ -401,8 +401,10 @@ const TaskManagement = () => {
                 key={idx}
                 size="sm"
                 borderRadius="50%"
-                backgroundColor="#75C5C1"
-                variant={currentPage === idx + 1 ? "solid" : "ghost"}
+                backgroundColor={currentPage === idx + 1 ? "#75C5C1" : "#fff"}
+                color={currentPage === idx + 1 ? "#fff" : "#000"}
+                borderColor={currentPage === idx + 1 ? "#fff" : "#75C5C1"}
+                borderWidth="1px"
                 colorScheme={currentPage === idx + 1 ? "blue" : "#75C5C1"}
                 onClick={() => setCurrentPage(idx + 1)}
               >
