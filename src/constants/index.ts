@@ -14,6 +14,7 @@ import {
 import { LuLink } from 'react-icons/lu'
 import { FaBell, FaChevronDown } from "react-icons/fa"
 import { Logo } from '@/components/ui/logos'
+import { Task } from '@/types/task'
 
 export const sidebarItems = [
     { name: 'Home', icon: Home2, href: '/' },
@@ -73,7 +74,7 @@ export const sidebarItems = [
   ]
   
 
-export  const mockTasks = [
+export  const mockTasks: Task[] = [
     {
       id: 1,
       name: "MKV Intranet V2",

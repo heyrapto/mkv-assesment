@@ -42,9 +42,21 @@ import SearchInput from "@/components/ui/search-input"
 import { FilterModal } from "@/components/modals/filter-modal"
 import { DatePickerModal } from "@/components/modals/date-picker"
 import { mockTasks } from "@/constants"
-import { Task } from "@/types/task"
 
-const TaskTable = ({ tasks }: Task[]) => {
+export interface Task {
+  id: number
+  name: string
+  date: string 
+  priority: "Urgent" | "Important" | "Medium" | "Low"
+  status: "todo" | "progress" | "complete"
+  assignee: Array<{ name: string; avatar?: string }>
+}
+
+interface TaskTableProps {
+  tasks: Task[]
+}
+
+const TaskTable = ({ tasks }: TaskTableProps) => {
   const { colorMode } = useColorMode()
   const borderColor = colorMode === "light" ? "#E5E7EB" : "#4A5568"
 
@@ -95,7 +107,7 @@ const TaskTable = ({ tasks }: Task[]) => {
 
           <HStack>
             <AvatarGroup size="sm">
-              {task.assignee.map((user: any, idx: number) => (
+              {task.assignee.map((user, idx: number) => (
                 <Avatar.Root key={idx} size="sm">
                   <Avatar.Fallback bg="#E5E7EB" color="#374151" fontSize="xs">
                     {user.name ? user.name.slice(0, 2).toUpperCase() : "NA"}
@@ -146,27 +158,50 @@ const rowsPerPageOptions = createListCollection({
   ],
 })
 
+type HeaderAction = {
+  type: "icon"
+  icon: React.ReactNode
+  aria: string
+  onClick: () => void
+} | {
+  type: "button"
+  label: string
+  icon: React.ReactNode
+  bg: string
+  onClick: () => void
+}
+
+interface Filters {
+  priority: string[]
+  status: string[]
+  assignee: string[]
+}
+
+interface DateRange {
+  start: string
+  end: string
+}
+
 const TaskManagement = () => {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [viewMode, setViewMode] = useState<"table" | "card">("table")
   const [tasks, setTasks] = useState<Task[]>(mockTasks)
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
-  const [isDateModalOpen, setIsDateModalOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    priority: [] as string[],
-    status: [] as string[],
-    assignee: [] as string[]
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false)
+  const [isDateModalOpen, setIsDateModalOpen] = useState<boolean>(false)
+  const [filters, setFilters] = useState<Filters>({
+    priority: [],
+    status: [],
+    assignee: []
   })
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<DateRange>({
     start: "",
     end: ""
   })
   const { colorMode } = useColorMode()
-  const bg = colorMode === "light" ? "white" : "gray.800"
 
-  const handleTaskMove = (taskId: number, newStatus: string) => {
+  const handleTaskMove = (taskId: number, newStatus: Task['status']) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task.id === taskId ? { ...task, status: newStatus } : task
@@ -178,7 +213,7 @@ const TaskManagement = () => {
     window.history.back()
   }
 
-  const applyFilters = (activeFilters: any) => {
+  const applyFilters = (activeFilters: Filters) => {
     console.log("Applied filters:", activeFilters)
   }
 
@@ -200,7 +235,7 @@ const TaskManagement = () => {
     return matchesSearch && matchesPriority && matchesStatus && matchesDateRange
   })
 
-  const taskGroups: Record<string, any[]> = {
+  const taskGroups: Record<string, Task[]> = {
     all: filteredTasks,
     todo: filteredTasks.filter((t) => t.status === "todo"),
     progress: filteredTasks.filter((t) => t.status === "progress"),
@@ -213,47 +248,42 @@ const TaskManagement = () => {
     { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#10B981" },
   ]
 
-  const headerActions: Array<
-  | { type: "icon"; icon: React.ReactNode; aria: string; onClick: () => void }
-  | { type: "button"; label: string; icon: React.ReactNode; bg: string; onClick: () => void }
-> = [
-  {
-    type: "icon",
-    icon: <FaToggleOff size={20} />,
-    aria: "Settings",
-    onClick: () => console.log("Settings clicked")
-  },
-  {
-    type: "icon",
-    icon: <LuListFilter size={20} />,
-    aria: "Filter",
-    onClick: () => setIsFilterModalOpen(true)
-  },
-  {
-    type: "icon",
-    icon: <FaCalendarWeek size={20} />,
-    aria: "Category",
-    onClick: () => setIsDateModalOpen(true)
-  },
-  {
-    type: "button",
-    label: "Export xlsx",
-    icon: <FaFileExport size={18} />,
-    bg: "#41245F",
-    onClick: () => handleExportExcel(filteredTasks)
-  },
-  {
-    type: "button",
-    label: "Add Task",
-    icon: <FaPlusCircle size={18} />,
-    bg: "#75C5C1",
-    onClick: () => console.log("Add task clicked")
-  },
-];
+  const headerActions: HeaderAction[] = [
+    {
+      type: "icon",
+      icon: <FaToggleOff size={20} />,
+      aria: "Settings",
+      onClick: () => console.log("Settings clicked")
+    },
+    {
+      type: "icon",
+      icon: <LuListFilter size={20} />,
+      aria: "Filter",
+      onClick: () => setIsFilterModalOpen(true)
+    },
+    {
+      type: "icon",
+      icon: <FaCalendarWeek size={20} />,
+      aria: "Category",
+      onClick: () => setIsDateModalOpen(true)
+    },
+    {
+      type: "button",
+      label: "Export xlsx",
+      icon: <FaFileExport size={18} />,
+      bg: "#41245F",
+      onClick: () => handleExportExcel(filteredTasks)
+    },
+    {
+      type: "button",
+      label: "Add Task",
+      icon: <FaPlusCircle size={18} />,
+      bg: "#75C5C1",
+      onClick: () => console.log("Add task clicked")
+    },
+  ]
 
   const totalPages = Math.ceil(filteredTasks.length / rowsPerPage)
-  const startIndex = (currentPage - 1) * rowsPerPage
-  const currentTasks = filteredTasks.slice(startIndex, startIndex + rowsPerPage)
 
   return (
     <MainLayout>
@@ -278,41 +308,45 @@ const TaskManagement = () => {
           </HStack>
 
           <HStack gap={3}>
-            {headerActions.map((action, idx) =>
-              action.type === "icon" ? (
-                <IconButton
-                  key={idx}
-                  variant="ghost"
-                  bg="#F7F7F7"
-                  height="50px"
-                  size="2xl"
-                  aria-label={action.aria}
-                  onClick={action.onClick}
-                >
-                  {action.icon}
-                </IconButton>
-              ) : (
-                <Button
-                  key={idx}
-                  size="sm"
-                  bg={action.bg}
-                  height="50px"
-                  width="156px"
-                  borderRadius="10px"
-                  color="white"
-                  onClick={action.onClick}
-                >
-                  {action.icon}
-                  {action.label}
-                </Button>
-              )
-            )}
+            {headerActions.map((action, idx) => {
+              if (action.type === "icon") {
+                return (
+                  <IconButton
+                    key={idx}
+                    variant="ghost"
+                    bg="#F7F7F7"
+                    height="50px"
+                    size="2xl"
+                    aria-label={action.aria}
+                    onClick={action.onClick}
+                  >
+                    {action.icon}
+                  </IconButton>
+                )
+              } else {
+                return (
+                  <Button
+                    key={idx}
+                    size="sm"
+                    bg={action.bg}
+                    height="50px"
+                    width="156px"
+                    borderRadius="10px"
+                    color="white"
+                    onClick={action.onClick}
+                  >
+                    {action.icon}
+                    {action.label}
+                  </Button>
+                )
+              }
+            })}
           </HStack>
         </Flex>
 
         {/* Search */}
         <Flex justify="space-between" align="center" className="bg-[#E9F5F7] rounded-md" padding="10px">
-        <SearchInput
+          <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
             placeholder="Search tasks..."
@@ -491,7 +525,7 @@ const TaskManagement = () => {
             </Button>
           </HStack>
 
-          <HStack gap={2} className="" whiteSpace="nowrap">
+          <HStack gap={2} whiteSpace="nowrap">
             <Text fontSize="sm" color="gray.600">
               Rows Per page:
             </Text>
@@ -505,11 +539,10 @@ const TaskManagement = () => {
               }}
             >
               <Select.Control w="70px">
-                <Select.Trigger borderRadius="50px"  className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
+                <Select.Trigger borderRadius="50px" className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
                   <Select.ValueText className="flex-1 text-center" />
-                  <FaChevronDown className="flex-1 text-center"  />
+                  <FaChevronDown className="flex-1 text-center" />
                 </Select.Trigger>
-
               </Select.Control>
               <Portal>
                 <Select.Positioner>
@@ -521,14 +554,12 @@ const TaskManagement = () => {
                           <Select.ItemIndicator />
                         </Flex>
                       </Select.Item>
-
                     ))}
                   </Select.Content>
                 </Select.Positioner>
               </Portal>
             </Select.Root>
           </HStack>
-
         </Flex>
       </VStack>
 
