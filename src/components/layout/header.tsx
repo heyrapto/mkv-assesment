@@ -34,12 +34,11 @@ const Header = () => {
   const { colorMode } = useColorMode()
   const [search, setSearch] = useState("")
   const bg = colorMode === "light" ? "white" : "gray.800"
-  const borderColor = colorMode === "light" ? "gray.200" : "gray.700"
+  const borderColor = colorMode === "light" ? "gray.900" : "gray.700"
 
   return (
     <Box
       bg={bg}
-      borderBottom="1px"
       borderColor={borderColor}
       px={6}
       py={4}

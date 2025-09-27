@@ -62,7 +62,7 @@ interface CreateTaskModalProps {
   onSubmit: (task: any) => void
 }
 
-const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalProps) => {
+export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalProps) => {
   const [taskName, setTaskName] = useState("")
   const [status, setStatus] = useState("todo")
   const [dates, setDates] = useState("")

@@ -45,6 +45,7 @@ import { DatePickerModal } from "@/components/modals/date-picker"
 import { mockTasks } from "@/constants"
 import { Task } from "@/types/task"
 import { TaskTable } from "@/components/ui/task-table"
+import CreateTaskModal from "@/components/modals/create-task"
 
 const rowsPerPageOptions = createListCollection({
   items: [
@@ -86,6 +87,7 @@ const TaskManagement = () => {
   const [tasks, setTasks] = useState<Task[]>(mockTasks)
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false)
   const [isDateModalOpen, setIsDateModalOpen] = useState<boolean>(false)
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false)
   const [filters, setFilters] = useState<Filters>({
     priority: [],
     status: [],
@@ -132,6 +134,19 @@ const TaskManagement = () => {
     return matchesSearch && matchesPriority && matchesStatus && matchesDateRange
   })
 
+  const handleAddTask = (newTask: any) => {
+    const id = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1
+    const taskToAdd: Task = {
+      id,
+      name: newTask.name,
+      status: newTask.status,
+      date: newTask.dates || "00/00/0000 - 00/00/0000",
+      assignee: newTask.assignees || [],
+      priority: newTask.priority || "normal",
+    }
+    setTasks([taskToAdd, ...tasks])
+  }
+
   const taskGroups: Record<string, Task[]> = {
     all: filteredTasks,
     todo: filteredTasks.filter((t) => t.status === "todo"),
@@ -176,7 +191,7 @@ const TaskManagement = () => {
       label: "Add Task",
       icon: <FaPlusCircle size={18} />,
       bg: "#75C5C1",
-      onClick: () => console.log("Add task clicked")
+      onClick: () => setIsAddTaskModalOpen(true)
     },
   ]
 
@@ -476,6 +491,13 @@ const TaskManagement = () => {
         dateRange={dateRange}
         setDateRange={setDateRange}
       />
+
+      <CreateTaskModal
+        isOpen={isAddTaskModalOpen}
+        onClose={() => setIsAddTaskModalOpen(false)}
+        onSubmit={handleAddTask}
+      />
+
     </MainLayout>
   )
 }
