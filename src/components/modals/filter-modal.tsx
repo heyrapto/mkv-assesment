@@ -1,10 +1,19 @@
+import { Filters } from "@/types/task"
 import { Flex, Box, Text, IconButton, VStack, Stack, Checkbox, HStack, Separator, Button } from "@chakra-ui/react"
 import { useState } from "react"
 import { FaTimes } from "react-icons/fa"
 import { LuFlag } from "react-icons/lu"
 
-export const FilterModal = ({ isOpen, onClose, filters, setFilters, onApplyFilters }: any) => {
-    const [tempFilters, setTempFilters] = useState(filters)
+interface FilterModalProps {
+  isOpen: boolean
+  onClose: () => void
+  filters: Filters
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
+  onApplyFilters: (filters: Filters) => void
+}
+
+export const FilterModal = ({ isOpen, onClose, filters, setFilters, onApplyFilters }: FilterModalProps) => {
+    const [tempFilters, setTempFilters] = useState<Filters>(filters)
   
     const handleApply = () => {
       setFilters(tempFilters)
@@ -95,7 +104,7 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters, onApplyFilte
                   <Checkbox.Root
                     key={priority}
                     checked={tempFilters.priority.includes(priority)}
-                    onCheckedChange={(e) => handlePriorityChange(priority, e.checked as any)}
+                    onCheckedChange={(e) => handlePriorityChange(priority, e.checked as boolean)}
                   >
                     <Checkbox.HiddenInput />
                     <Checkbox.Control />
@@ -128,7 +137,7 @@ export const FilterModal = ({ isOpen, onClose, filters, setFilters, onApplyFilte
                   <Checkbox.Root
                     key={status.value}
                     checked={tempFilters.status.includes(status.value)}
-                    onCheckedChange={(e) => handleStatusChange(status.value, e.checked as any)}
+                    onCheckedChange={(e) => handleStatusChange(status.value, e.checked as boolean)}
                   >
                     <Checkbox.HiddenInput />
                     <Checkbox.Control />

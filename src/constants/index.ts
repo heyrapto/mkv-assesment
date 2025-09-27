@@ -12,8 +12,7 @@ import {
     Setting2,
   } from 'iconsax-react'
 import { LuLink } from 'react-icons/lu'
-import { FaBell, FaChevronDown } from "react-icons/fa"
-import { Logo } from '@/components/ui/logos'
+import { FaBell } from "react-icons/fa"
 import { Task } from '@/types/task'
 
 export const sidebarItems = [
@@ -71,62 +70,247 @@ export const sidebarItems = [
   export const actions = [
     { icon: LuLink, label: "Settings" },
     { icon: FaBell, label: "Notifications" },
-  ]
-  
+]
 
-export  const mockTasks: Task[] = [
-    {
-      id: 1,
-      name: "MKV Intranet V2",
-      date: "04/06/2024 - 16/06/2024",
-      assignee: [
-        { name: "JI", avatar: "https://i.pravatar.cc/150?u=ji" },
-        { name: "Alex", avatar: "https://i.pravatar.cc/150?u=alex" },
-      ],
-      priority: "Medium",
-      status: "todo",
-    },
-    {
-      id: 2,
-      name: "Design System",
-      date: "23/06/2024 - 24/06/2024",
-      assignee: [{ name: "Sam", avatar: "https://i.pravatar.cc/150?u=sam" }],
-      priority: "Important",
-      status: "todo",
-    },
-    {
-      id: 3,
-      name: "Medical Appointment",
-      date: "16/06/2024 - 18/06/2024",
-      assignee: [
-        { name: "User 1", avatar: "https://i.pravatar.cc/150?u=user1" },
-        { name: "User 2", avatar: "https://i.pravatar.cc/150?u=user2" },
-      ],
-      priority: "Urgent",
-      status: "todo",
-    },
-    {
-      id: 4,
-      name: "Testing Data",
-      date: "23/06/2024 - 24/06/2024",
-      assignee: [{ name: "Chris", avatar: "https://i.pravatar.cc/150?u=chris" }],
-      priority: "Urgent",
-      status: "progress",
-    },
-    {
-      id: 5,
-      name: "Patient Request",
-      date: "16/06/2024 - 18/06/2024",
-      assignee: [{ name: "Taylor", avatar: "https://i.pravatar.cc/150?u=taylor" }],
-      priority: "Urgent",
-      status: "progress",
-    },
-    {
-      id: 6,
-      name: "Patient Meetup",
-      date: "23/06/2024 - 24/06/2024",
-      assignee: [{ name: "Jordan", avatar: "https://i.pravatar.cc/150?u=jordan" }],
-      priority: "Low",
-      status: "complete",
-    },
+export const mockTasks: Task[] = [
+  {
+    id: 1,
+    name: "MKV Intranet V2",
+    date: "04/06/2024 - 16/06/2024",
+    assignee: [
+      { name: "JI", avatar: "https://i.pravatar.cc/150?u=ji" },
+      { name: "Alex", avatar: "https://i.pravatar.cc/150?u=alex" },
+    ],
+    priority: "Medium",
+    status: "todo",
+  },
+  {
+    id: 2,
+    name: "Design System",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Sam", avatar: "https://i.pravatar.cc/150?u=sam" }],
+    priority: "Important",
+    status: "todo",
+  },
+  {
+    id: 3,
+    name: "Medical Appointment",
+    date: "16/06/2024 - 18/06/2024",
+    assignee: [
+      { name: "User 1", avatar: "https://i.pravatar.cc/150?u=user1" },
+      { name: "User 2", avatar: "https://i.pravatar.cc/150?u=user2" },
+    ],
+    priority: "Urgent",
+    status: "todo",
+  },
+  {
+    id: 4,
+    name: "Database Migration",
+    date: "01/07/2024 - 05/07/2024",
+    assignee: [
+      { name: "Maria", avatar: "https://i.pravatar.cc/150?u=maria" },
+      { name: "David", avatar: "https://i.pravatar.cc/150?u=david" },
+      { name: "Lisa", avatar: "https://i.pravatar.cc/150?u=lisa" },
+    ],
+    priority: "Urgent",
+    status: "todo",
+  },
+  {
+    id: 5,
+    name: "API Documentation",
+    date: "10/07/2024 - 15/07/2024",
+    assignee: [{ name: "Emma", avatar: "https://i.pravatar.cc/150?u=emma" }],
+    priority: "Medium",
+    status: "todo",
+  },
+  {
+    id: 6,
+    name: "Security Audit",
+    date: "20/07/2024 - 25/07/2024",
+    assignee: [
+      { name: "Mike", avatar: "https://i.pravatar.cc/150?u=mike" },
+      { name: "Sarah", avatar: "https://i.pravatar.cc/150?u=sarah" },
+    ],
+    priority: "Urgent",
+    status: "todo",
+  },
+  {
+    id: 7,
+    name: "User Training Materials",
+    date: "12/07/2024 - 18/07/2024",
+    assignee: [{ name: "Rachel", avatar: "https://i.pravatar.cc/150?u=rachel" }],
+    priority: "Low",
+    status: "todo",
+  },
+  {
+    id: 8,
+    name: "Mobile App Prototype",
+    date: "05/08/2024 - 20/08/2024",
+    assignee: [
+      { name: "Jake", avatar: "https://i.pravatar.cc/150?u=jake" },
+      { name: "Nina", avatar: "https://i.pravatar.cc/150?u=nina" },
+      { name: "Tom", avatar: "https://i.pravatar.cc/150?u=tom" },
+      { name: "Zoe", avatar: "https://i.pravatar.cc/150?u=zoe" },
+    ],
+    priority: "Important",
+    status: "todo",
+  },
+  // In Progress Tasks
+  {
+    id: 9,
+    name: "Testing Data",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Chris", avatar: "https://i.pravatar.cc/150?u=chris" }],
+    priority: "Urgent",
+    status: "progress",
+  },
+  {
+    id: 10,
+    name: "Patient Request",
+    date: "16/06/2024 - 18/06/2024",
+    assignee: [{ name: "Taylor", avatar: "https://i.pravatar.cc/150?u=taylor" }],
+    priority: "Urgent",
+    status: "progress",
+  },
+  {
+    id: 11,
+    name: "Frontend Refactoring",
+    date: "28/06/2024 - 12/07/2024",
+    assignee: [
+      { name: "Ben", avatar: "https://i.pravatar.cc/150?u=ben" },
+      { name: "Kate", avatar: "https://i.pravatar.cc/150?u=kate" },
+      { name: "Leo", avatar: "https://i.pravatar.cc/150?u=leo" },
+    ],
+    priority: "Medium",
+    status: "progress",
+  },
+  {
+    id: 12,
+    name: "Performance Optimization",
+    date: "02/07/2024 - 08/07/2024",
+    assignee: [
+      { name: "Alex", avatar: "https://i.pravatar.cc/150?u=alex2" },
+      { name: "Maya", avatar: "https://i.pravatar.cc/150?u=maya" },
+    ],
+    priority: "Important",
+    status: "progress",
+  },
+  {
+    id: 13,
+    name: "Bug Fixes Sprint",
+    date: "25/06/2024 - 30/06/2024",
+    assignee: [{ name: "Ryan", avatar: "https://i.pravatar.cc/150?u=ryan" }],
+    priority: "Urgent",
+    status: "progress",
+  },
+  {
+    id: 14,
+    name: "Content Migration",
+    date: "15/07/2024 - 22/07/2024",
+    assignee: [
+      { name: "Sophie", avatar: "https://i.pravatar.cc/150?u=sophie" },
+      { name: "James", avatar: "https://i.pravatar.cc/150?u=james" },
+    ],
+    priority: "Medium",
+    status: "progress",
+  },
+  {
+    id: 15,
+    name: "Email Templates",
+    date: "08/07/2024 - 14/07/2024",
+    assignee: [{ name: "Grace", avatar: "https://i.pravatar.cc/150?u=grace" }],
+    priority: "Low",
+    status: "progress",
+  },
+  // Complete Tasks
+  {
+    id: 16,
+    name: "Patient Meetup",
+    date: "23/06/2024 - 24/06/2024",
+    assignee: [{ name: "Jordan", avatar: "https://i.pravatar.cc/150?u=jordan" }],
+    priority: "Low",
+    status: "complete",
+  },
+  {
+    id: 17,
+    name: "Initial Setup",
+    date: "01/06/2024 - 05/06/2024",
+    assignee: [
+      { name: "Admin", avatar: "https://i.pravatar.cc/150?u=admin" },
+      { name: "DevOps", avatar: "https://i.pravatar.cc/150?u=devops" },
+    ],
+    priority: "Urgent",
+    status: "complete",
+  },
+  {
+    id: 18,
+    name: "Requirements Analysis",
+    date: "10/06/2024 - 15/06/2024",
+    assignee: [
+      { name: "Product", avatar: "https://i.pravatar.cc/150?u=product" },
+      { name: "Business", avatar: "https://i.pravatar.cc/150?u=business" },
+      { name: "Tech", avatar: "https://i.pravatar.cc/150?u=tech" },
+    ],
+    priority: "Important",
+    status: "complete",
+  },
+  {
+    id: 19,
+    name: "Wireframe Creation",
+    date: "18/06/2024 - 20/06/2024",
+    assignee: [{ name: "Designer", avatar: "https://i.pravatar.cc/150?u=designer" }],
+    priority: "Medium",
+    status: "complete",
+  },
+  {
+    id: 20,
+    name: "Team Onboarding",
+    date: "12/06/2024 - 14/06/2024",
+    assignee: [
+      { name: "HR", avatar: "https://i.pravatar.cc/150?u=hr" },
+      { name: "Manager", avatar: "https://i.pravatar.cc/150?u=manager" },
+    ],
+    priority: "Medium",
+    status: "complete",
+  },
+  {
+    id: 21,
+    name: "Logo Design",
+    date: "22/06/2024 - 23/06/2024",
+    assignee: [{ name: "Creative", avatar: "https://i.pravatar.cc/150?u=creative" }],
+    priority: "Low",
+    status: "complete",
+  },
+  {
+    id: 22,
+    name: "Server Configuration",
+    date: "08/06/2024 - 12/06/2024",
+    assignee: [
+      { name: "SysAdmin", avatar: "https://i.pravatar.cc/150?u=sysadmin" },
+      { name: "Network", avatar: "https://i.pravatar.cc/150?u=network" },
+      { name: "Security", avatar: "https://i.pravatar.cc/150?u=security" },
+      { name: "Backup", avatar: "https://i.pravatar.cc/150?u=backup" },
+    ],
+    priority: "Urgent",
+    status: "complete",
+  },
+  {
+    id: 23,
+    name: "Code Review Process",
+    date: "25/06/2024 - 26/06/2024",
+    assignee: [
+      { name: "Senior Dev", avatar: "https://i.pravatar.cc/150?u=seniordev" },
+      { name: "Architect", avatar: "https://i.pravatar.cc/150?u=architect" },
+    ],
+    priority: "Important",
+    status: "complete",
+  },
+  {
+    id: 24,
+    name: "Testing Framework",
+    date: "20/06/2024 - 22/06/2024",
+    assignee: [{ name: "QA Lead", avatar: "https://i.pravatar.cc/150?u=qalead" }],
+    priority: "Medium",
+    status: "complete",
+  },
 ]

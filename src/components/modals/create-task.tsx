@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Box,
   Button,
@@ -20,10 +20,11 @@ import {
   FaUser,
   FaFlag,
   FaFileAlt,
-  FaChevronDown,
+  FaChevronLeft,
+  FaChevronRight,
   FaSearch
 } from "react-icons/fa"
-import { CalendarPicker } from "../ui/calender-picker"
+import { Task } from "@/types/task"
 
 const availableAssignees = [
   { id: 1, name: "Maria Vetrovs", avatar: "https://i.pravatar.cc/150?u=maria" },
@@ -56,13 +57,110 @@ const quickDateOptions = [
   { label: "4 Week", value: "4week", day: "4 Feb" }
 ]
 
+// Enhanced Calendar Component
+const CalendarPicker = ({ onDateSelect, onClose }: { onDateSelect: (date: string) => void, onClose: () => void }) => {
+  const [currentMonth] = useState("January 2025")
+  const [selectedDate, setSelectedDate] = useState<number | null>(null)
+
+  const daysOfWeek = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1)
+
+  const handleDateClick = (day: number) => {
+    setSelectedDate(day)
+    onDateSelect(`${day.toString().padStart(2, '0')}/01/2025`)
+    onClose()
+  }
+
+  return (
+    <Box
+      position="absolute"
+      top="100%"
+      right="0"
+      bg="white"
+      border="1px solid #E5E7EB"
+      borderRadius="lg"
+      p={4}
+      boxShadow="xl"
+      zIndex={20}
+      mt={2}
+      minW="340px"
+    >
+      {/* Date Input Section */}
+      <HStack mb={4} gap={3}>
+        <Box flex={1}>
+          <HStack bg="#F9FAFB" border="1px solid #E5E7EB" borderRadius="md" px={3} py={2}>
+            <FaCalendarAlt size={14} color="#9CA3AF" />
+            <Text fontSize="sm" color="#9CA3AF">DD/MM/YYYY</Text>
+          </HStack>
+        </Box>
+        <Box>
+          <HStack bg="#F9FAFB" border="1px solid #E5E7EB" borderRadius="md" px={3} py={2}>
+            <Text fontSize="sm" color="#9CA3AF">00:00</Text>
+          </HStack>
+        </Box>
+      </HStack>
+
+      {/* Calendar Header */}
+      <Flex justify="space-between" align="center" mb={4}>
+        <IconButton variant="ghost" size="sm" onClick={() => {}}>
+          <FaChevronLeft size={14} />
+        </IconButton>
+        <Text fontWeight="600" fontSize="md">{currentMonth}</Text>
+        <IconButton variant="ghost" size="sm" onClick={() => {}}>
+          <FaChevronRight size={14} />
+        </IconButton>
+      </Flex>
+
+      {/* Days of week */}
+      <Box display="grid" gridTemplateColumns="repeat(7, 1fr)" gap={1} mb={3}>
+        {daysOfWeek.map((day) => (
+          <Text key={day} textAlign="center" fontSize="xs" color="#6B7280" py={1} fontWeight="500">
+            {day}
+          </Text>
+        ))}
+      </Box>
+
+      {/* Calendar Days */}
+      <Box display="grid" gridTemplateColumns="repeat(7, 1fr)" gap={1}>
+        {/* Empty cells for proper alignment - January 2025 starts on Wednesday */}
+        {Array.from({ length: 2 }, (_, i) => (
+          <Box key={`empty-${i}`} />
+        ))}
+        
+        {daysInMonth.map((day) => (
+          <Box
+            key={day}
+            as="button"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            w="36px"
+            h="36px"
+            borderRadius="md"
+            fontSize="sm"
+            cursor="pointer"
+            bg={selectedDate === day ? "#75C5C1" : "transparent"}
+            color={selectedDate === day ? "white" : "#374151"}
+            _hover={{ bg: selectedDate === day ? "#75C5C1" : "#F3F4F6" }}
+            onClick={() => handleDateClick(day)}
+            fontWeight={day === 1 ? "600" : "400"}
+          >
+            {day}
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  )
+}
+
 interface CreateTaskModalProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (task: any) => void
+  onSubmit: (task: Task) => void
+  defaultStatus?: string
 }
 
-export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalProps) => {
+export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: CreateTaskModalProps) => {
   const [taskName, setTaskName] = useState("")
   const [status, setStatus] = useState("todo")
   const [dates, setDates] = useState("")
@@ -70,12 +168,17 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
   const [priority, setPriority] = useState("")
   const [description, setDescription] = useState("")
   const [showStatusDropdown, setShowStatusDropdown] = useState(false)
-  const [showDatePicker, setShowDatePicker] = useState(false)
   const [showQuickDates, setShowQuickDates] = useState(false)
   const [showAssigneeSearch, setShowAssigneeSearch] = useState(false)
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [assigneeSearch, setAssigneeSearch] = useState("")
+
+  useEffect(() => {
+    if (isOpen && defaultStatus) {
+      setStatus(defaultStatus)
+    }
+  }, [isOpen, defaultStatus])
 
   if (!isOpen) return null
 
@@ -88,9 +191,8 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
       name: taskName,
       status,
       dates,
-      assignees: selectedAssigneeData,
+      assignee: selectedAssigneeData,
       priority,
-      description
     }
     
     onSubmit(newTask)
@@ -139,29 +241,66 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
     >
       <Box
         bg="white"
-        borderRadius="lg"
-        w="500px"
+        borderRadius="xl"
+        w="520px"
         maxH="90vh"
         overflowY="auto"
         position="relative"
+        boxShadow="2xl"
       >
         {/* Header */}
-        <Flex justify="space-between" align="center" p={6} borderBottom="1px solid #E5E7EB">
-          <Text fontSize="lg" fontWeight="600" color="#374151">
-            {taskName || "Task Name"}
+        <Flex justify="space-between" align="center" p={6} pb={3}>
+          <Text fontSize="xl" fontWeight="400" color="#9CA3AF">
+            Task Name
           </Text>
-          <IconButton variant="ghost" size="sm" onClick={onClose}>
-            <FaTimes />
+          <IconButton 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            color="#9CA3AF"
+            _hover={{ bg: "#F3F4F6" }}
+          >
+            <FaTimes size={16} />
           </IconButton>
         </Flex>
 
-        <VStack gap={0} align="stretch" p={6}>
+        {/* Task Name Input */}
+        <Box px={6} pb={6}>
+          <Input
+            placeholder={taskName || "MKV Intranet V2"}
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+            fontSize="2xl"
+            fontWeight="700"
+            color="#111827"
+            border="none"
+            bg="transparent"
+            px={0}
+            h="auto"
+            _focus={{ border: "none", boxShadow: "none" }}
+            _placeholder={{ color: "#D1D5DB", fontWeight: "700" }}
+          />
+        </Box>
+
+        <VStack gap={0} align="stretch" px={6}>
           {/* Status */}
-          <Box position="relative" py={4} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
             <HStack justify="space-between">
               <HStack gap={3}>
-                <Box w="20px" h="20px" borderRadius="full" border="2px solid #E5E7EB" />
-                <Text color="#6B7280" fontWeight="500">Status</Text>
+                <Box 
+                  w="20px" 
+                  h="20px" 
+                  borderRadius="full" 
+                  border="2px solid"
+                  borderColor="#E5E7EB"
+                  bg="white"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Box w="8px" h="8px" bg="#E5E7EB" borderRadius="full" />
+                </Box>
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">Status</Text>
               </HStack>
               <Box position="relative">
                 <Badge
@@ -171,6 +310,8 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                   px={3}
                   py={1}
                   cursor="pointer"
+                  fontSize="12px"
+                  fontWeight="500"
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                 >
                   {statusOptions.find(opt => opt.value === status)?.label || "To Do"}
@@ -185,9 +326,10 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                     border="1px solid #E5E7EB"
                     borderRadius="lg"
                     py={2}
-                    minW="120px"
-                    boxShadow="lg"
-                    zIndex={10}
+                    minW="140px"
+                    boxShadow="xl"
+                    zIndex={15}
+                    mt={1}
                   >
                     {statusOptions.map((option) => (
                       <HStack
@@ -202,7 +344,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                         }}
                       >
                         <Box w="8px" h="8px" borderRadius="full" bg={option.color} />
-                        <Text fontSize="sm">{option.label}</Text>
+                        <Text fontSize="sm" fontWeight="500">{option.label}</Text>
                       </HStack>
                     ))}
                   </Box>
@@ -212,17 +354,19 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
           </Box>
 
           {/* Dates */}
-          <Box position="relative" py={4} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
             <HStack justify="space-between">
               <HStack gap={3}>
-                <FaCalendarAlt color="#6B7280" />
-                <Text color="#6B7280" fontWeight="500">Dates</Text>
+                <FaCalendarAlt color="#6B7280" size={16} />
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">Dates</Text>
               </HStack>
               <Box position="relative">
                 <Text
                   color="#9CA3AF"
                   cursor="pointer"
                   onClick={() => setShowQuickDates(!showQuickDates)}
+                  fontSize="14px"
+                  fontWeight="400"
                 >
                   {dates || "00/00/0000"}
                 </Text>
@@ -236,16 +380,17 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                     border="1px solid #E5E7EB"
                     borderRadius="lg"
                     py={2}
-                    minW="150px"
-                    boxShadow="lg"
-                    zIndex={10}
+                    minW="180px"
+                    boxShadow="xl"
+                    zIndex={15}
+                    mt={1}
                   >
                     {quickDateOptions.map((option) => (
                       <HStack
                         key={option.value}
                         justify="space-between"
                         px={3}
-                        py={2}
+                        py={2.5}
                         cursor="pointer"
                         _hover={{ bg: "#F3F4F6" }}
                         onClick={() => {
@@ -253,15 +398,15 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                           setShowQuickDates(false)
                         }}
                       >
-                        <Text fontSize="sm">{option.label}</Text>
-                        <Text fontSize="sm" color="#6B7280">{option.day}</Text>
+                        <Text fontSize="sm" fontWeight="400">{option.label}</Text>
+                        <Text fontSize="sm" color="#6B7280" fontWeight="400">{option.day}</Text>
                       </HStack>
                     ))}
                     
                     <Box borderTop="1px solid #E5E7EB" mt={2} pt={2}>
                       <HStack
                         px={3}
-                        py={2}
+                        py={2.5}
                         cursor="pointer"
                         _hover={{ bg: "#F3F4F6" }}
                         onClick={() => {
@@ -269,8 +414,8 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                           setShowQuickDates(false)
                         }}
                       >
-                        <FaCalendarAlt size={12} />
-                        <Text fontSize="sm">Custom Date</Text>
+                        <FaCalendarAlt size={12} color="#6B7280" />
+                        <Text fontSize="sm" fontWeight="400">Custom Date</Text>
                       </HStack>
                     </Box>
                   </Box>
@@ -290,21 +435,21 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
           </Box>
 
           {/* Assignees */}
-          <Box position="relative" py={4} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
             <HStack justify="space-between">
               <HStack gap={3}>
-                <FaUser color="#6B7280" />
-                <Text color="#6B7280" fontWeight="500">Assignees</Text>
+                <FaUser color="#6B7280" size={16} />
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">Assignees</Text>
               </HStack>
               <Box position="relative">
                 {selectedAssignees.length > 0 ? (
-                  <HStack>
+                  <HStack gap={0}>
                     {selectedAssignees.slice(0, 2).map(assigneeId => {
                       const assignee = availableAssignees.find(a => a.id === assigneeId)
                       return assignee ? (
-                        <Avatar.Root key={assigneeId} size="sm">
+                        <Avatar.Root key={assigneeId} size="sm" ml={assigneeId === selectedAssignees[0] ? 0 : -2}>
                           <Avatar.Image src={assignee.avatar} alt={assignee.name} />
-                          <Avatar.Fallback bg="#E5E7EB" color="#374151" fontSize="xs">
+                          <Avatar.Fallback bg="#E5E7EB" color="#374151" fontSize="xs" border="2px solid white">
                             {assignee.name.slice(0, 2).toUpperCase()}
                           </Avatar.Fallback>
                         </Avatar.Root>
@@ -322,23 +467,20 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                         borderRadius="full"
                         fontSize="xs"
                         fontWeight="600"
+                        ml={-2}
+                        border="2px solid white"
                       >
                         +{selectedAssignees.length - 2}
                       </Box>
                     )}
-                    <IconButton
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setShowAssigneeSearch(!showAssigneeSearch)}
-                    >
-                      <FaChevronDown />
-                    </IconButton>
                   </HStack>
                 ) : (
                   <Text
                     color="#9CA3AF"
                     cursor="pointer"
                     onClick={() => setShowAssigneeSearch(!showAssigneeSearch)}
+                    fontSize="14px"
+                    fontWeight="400"
                   >
                     Select Assignee
                   </Text>
@@ -353,30 +495,33 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                     border="1px solid #E5E7EB"
                     borderRadius="lg"
                     p={3}
-                    minW="250px"
-                    boxShadow="lg"
-                    zIndex={10}
+                    minW="280px"
+                    boxShadow="xl"
+                    zIndex={15}
+                    mt={1}
                   >
                     <Box position="relative" mb={3}>
                       <Input
                         placeholder="Search user"
                         value={assigneeSearch}
                         onChange={(e) => setAssigneeSearch(e.target.value)}
-                        pl={8}
+                        pl={10}
                         size="sm"
                         bg="#F9FAFB"
                         border="1px solid #E5E7EB"
+                        borderRadius="md"
+                        fontSize="14px"
                       />
-                      <Box position="absolute" left={2} top="50%" transform="translateY(-50%)">
-                        <FaSearch size={12} color="#9CA3AF" />
+                      <Box position="absolute" left={3} top="50%" transform="translateY(-50%)">
+                        <FaSearch size={14} color="#9CA3AF" />
                       </Box>
                     </Box>
 
-                    <VStack align="stretch" gap={2} maxH="200px" overflowY="auto">
+                    <VStack align="stretch" gap={1} maxH="200px" overflowY="auto">
                       {filteredAssignees.map((assignee) => (
                         <HStack
                           key={assignee.id}
-                          p={2}
+                          p={2.5}
                           cursor="pointer"
                           borderRadius="md"
                           _hover={{ bg: "#F3F4F6" }}
@@ -388,7 +533,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                               {assignee.name.slice(0, 2).toUpperCase()}
                             </Avatar.Fallback>
                           </Avatar.Root>
-                          <Text flex={1} fontSize="sm">{assignee.name}</Text>
+                          <Text flex={1} fontSize="sm" fontWeight="500">{assignee.name}</Text>
                           {selectedAssignees.includes(assignee.id) && (
                             <Box w="16px" h="16px" bg="#75C5C1" borderRadius="full" />
                           )}
@@ -402,17 +547,19 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
           </Box>
 
           {/* Priority */}
-          <Box position="relative" py={4} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
             <HStack justify="space-between">
               <HStack gap={3}>
-                <FaFlag color="#6B7280" />
-                <Text color="#6B7280" fontWeight="500">Priority</Text>
+                <FaFlag color="#6B7280" size={16} />
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">Priority</Text>
               </HStack>
               <Box position="relative">
                 <Text
                   color={priority ? getPriorityColor(priority) : "#9CA3AF"}
                   cursor="pointer"
                   onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
+                  fontSize="14px"
+                  fontWeight={priority ? "500" : "400"}
                 >
                   {priorityOptions.find(opt => opt.value === priority)?.label || "Select Priority"}
                 </Text>
@@ -427,14 +574,15 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                     borderRadius="lg"
                     py={2}
                     minW="150px"
-                    boxShadow="lg"
-                    zIndex={10}
+                    boxShadow="xl"
+                    zIndex={15}
+                    mt={1}
                   >
                     {priorityOptions.map((option) => (
                       <HStack
                         key={option.value}
                         px={3}
-                        py={2}
+                        py={2.5}
                         cursor="pointer"
                         _hover={{ bg: "#F3F4F6" }}
                         onClick={() => {
@@ -443,14 +591,14 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                         }}
                       >
                         <FaFlag color={option.color} size={12} />
-                        <Text fontSize="sm">{option.label}</Text>
+                        <Text fontSize="sm" fontWeight="500">{option.label}</Text>
                       </HStack>
                     ))}
                     
                     <Box borderTop="1px solid #E5E7EB" mt={2} pt={2}>
                       <HStack
                         px={3}
-                        py={2}
+                        py={2.5}
                         cursor="pointer"
                         _hover={{ bg: "#F3F4F6" }}
                         onClick={() => {
@@ -458,7 +606,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
                           setShowPriorityDropdown(false)
                         }}
                       >
-                        <Text fontSize="sm" color="#6B7280">Clear</Text>
+                        <Text fontSize="sm" color="#6B7280" fontWeight="400">Clear</Text>
                       </HStack>
                     </Box>
                   </Box>
@@ -468,46 +616,39 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit }: CreateTaskModalPr
           </Box>
 
           {/* Description */}
-          <Box py={4}>
-            <HStack gap={3} align="flex-start" mb={3}>
-              <FaFileAlt color="#6B7280" style={{ marginTop: "4px" }} />
-              <Text color="#6B7280" fontWeight="500">Description</Text>
+          <Box py={5}>
+            <HStack gap={3} align="flex-start" mb={4}>
+              <FaFileAlt color="#6B7280" size={16} style={{ marginTop: "4px" }} />
+              <Text color="#6B7280" fontWeight="500" fontSize="15px">Description</Text>
             </HStack>
             <Textarea
               placeholder="Write something or type"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              bg="#F9FAFB"
-              border="1px solid #E5E7EB"
+              bg="transparent"
+              border="none"
               borderRadius="md"
-              minH="100px"
-              resize="vertical"
-              _focus={{ borderColor: "#75C5C1", boxShadow: "0 0 0 1px #75C5C1" }}
-            />
-          </Box>
-
-          {/* Task Name Input */}
-          <Box py={4}>
-            <Input
-              placeholder="Enter task name..."
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
-              bg="#F9FAFB"
-              border="1px solid #E5E7EB"
-              borderRadius="md"
-              _focus={{ borderColor: "#75C5C1", boxShadow: "0 0 0 1px #75C5C1" }}
+              minH="80px"
+              resize="none"
+              px={0}
+              fontSize="14px"
+              color="#111827"
+              _focus={{ border: "none", boxShadow: "none" }}
+              _placeholder={{ color: "#D1D5DB", fontSize: "14px" }}
             />
           </Box>
         </VStack>
 
         {/* Footer */}
-        <Flex justify="flex-end" p={6} borderTop="1px solid #E5E7EB">
+        <Flex justify="flex-end" p={6} pt={4} borderTop="1px solid #F3F4F6">
           <Button
             bg="#75C5C1"
             color="white"
             px={8}
-            py={2}
-            borderRadius="md"
+            py={2.5}
+            borderRadius="lg"
+            fontSize="14px"
+            fontWeight="600"
             onClick={handleSubmit}
             _hover={{ bg: "#5EAAA7" }}
           >

@@ -2,7 +2,20 @@ import { Box, Flex, IconButton, VStack, Input, HStack, Button, Text } from "@cha
 import { useState } from "react"
 import { FaTimes } from "react-icons/fa"
 
-export const DatePickerModal = ({ isOpen, onClose, dateRange, setDateRange }: any) => {
+type DateRange = {
+  start: string;
+  end: string;
+};
+
+type DatePickerModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  dateRange: DateRange;
+  setDateRange: (range: DateRange) => void;
+};
+
+
+export const DatePickerModal = ({ isOpen, onClose, dateRange, setDateRange }: DatePickerModalProps) => {
     const [tempDateRange, setTempDateRange] = useState(dateRange)
   
     const handleApply = () => {

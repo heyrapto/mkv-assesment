@@ -13,7 +13,7 @@ import {
     Button,
     Flex,
 } from "@chakra-ui/react"
-import { FaEllipsisV, FaPlus, FaCalendar, FaUsers, FaUser, FaUserCircle } from "react-icons/fa"
+import { FaPlus, FaCalendar, FaUserCircle } from "react-icons/fa"
 import { LuFlag } from "react-icons/lu"
 
 interface TaskCardViewProps {
@@ -28,10 +28,11 @@ interface TaskCardViewProps {
         priority: string
         status: string
     }>
-    onTaskMove: any;
+    onTaskMove: any
+    onOpenCreateModal?: (defaultStatus: string) => void
 }
 
-const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
+const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove, onOpenCreateModal }) => {
     const getColumnByStatus = (status: string) => {
         const statusTasks = tasks.filter(task => task.status === status)
 
@@ -70,6 +71,12 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
 
         const config = getStatusConfig(status)
 
+        const handleAddTask = () => {
+            if (onOpenCreateModal) {
+                onOpenCreateModal(status)
+            }
+        }
+
         return (
             <Box key={status} bg="#F7F7F7" borderRadius="lg" minH="500px">
                 {/* Column Header */}
@@ -101,8 +108,10 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
                         variant="ghost"
                         color="#6B7280"
                         bg="white"
-                        _hover={{ bg: "white" }}
+                        _hover={{ bg: "#F3F4F6" }}
                         borderRadius="md"
+                        onClick={handleAddTask}
+                        title={`Add task to ${config.title}`}
                     >
                         <FaPlus />
                     </IconButton>
@@ -129,14 +138,6 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
                                 <Text fontWeight="600" color="#111827" fontSize="sm">
                                     {task.name}
                                 </Text>
-                                {/* <IconButton
-                  size="xs"
-                  variant="ghost"
-                  color="#6B7280"
-                  _hover={{ bg: "#F3F4F6" }}
-                >
-                  <FaEllipsisV />
-                </IconButton> */}
                             </HStack>
 
                             {/* Date */}
@@ -161,18 +162,28 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
                                                 >
                                                     {user.name ? user.name.slice(0, 2).toUpperCase() : "NA"}
                                                 </Avatar.Fallback>
-                                                {user.avatar && (
-                                                    <Avatar.Image src={user.avatar} alt={user.name} />
-                                                )}
+                                                <Avatar.Image src={user.avatar} alt={user.name} />
                                             </Avatar.Root>
                                         ))}
                                     </AvatarGroup>
-                                    {task.assignee.length > 3 && (
-                                        <Text fontSize="xs" color="#6B7280">
-                                            +{task.assignee.length - 3}
-                                        </Text>
+                                    {task.assignee.length > 2 && (
+                                        <Box
+                                            display="flex"
+                                            alignItems="center"
+                                            justifyContent="center"
+                                            w="20px"
+                                            h="20px"
+                                            bg="#8B5CF6"
+                                            color="white"
+                                            borderRadius="full"
+                                            fontSize="2xs"
+                                            fontWeight="600"
+                                            border="2px solid white"
+                                            ml={-1}
+                                        >
+                                            +{task.assignee.length - 2}
+                                        </Box>
                                     )}
-
                                 </HStack>
 
                                 {/* Priority */}
@@ -197,13 +208,21 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
                         className="flex gap-2 items-center"
                         color="#6B7280"
                         bg="white"
-                        padding="10px"
+                        padding="16px"
                         justifyContent="flex-start"
                         fontWeight="normal"
+                        borderRadius="lg"
+                        border="1px dashed #E5E7EB"
+                        _hover={{ 
+                            bg: "#F9FAFB",
+                            borderColor: "#D1D5DB",
+                            color: "#374151"
+                        }}
+                        onClick={handleAddTask}
+                        transition="all 0.2s"
                     >
-                        <FaPlus size="16" />
-                        <Text className="text-[22px]">Add Task</Text>
-
+                        <FaPlus size="14" />
+                        <Text fontSize="sm" fontWeight="500">Add Task</Text>
                     </Button>
                 </VStack>
             </Box>

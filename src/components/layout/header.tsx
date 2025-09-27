@@ -21,7 +21,7 @@ import {
 import { FaBell, FaChevronDown } from "react-icons/fa"
 import SearchInput from "../ui/search-input"
 import { Logo } from "../ui/logos"
-import { actions, badges, menuItems } from "@/constants"
+import { badges, menuItems } from "@/constants"
 import { LuLink } from "react-icons/lu"
 
 export const logos = [

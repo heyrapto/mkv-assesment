@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { ChangeEvent, useState } from "react"
 import {
   Box,
   Heading,
@@ -8,34 +8,26 @@ import {
   VStack,
   Text,
   Badge,
-  Avatar,
-  AvatarGroup,
   IconButton,
   Button,
-  Input,
   Tabs,
   Flex,
   Select,
   Portal,
   createListCollection,
 } from "@chakra-ui/react"
-
-import { useColorMode } from "@/components/ui/color-mode"
 import {
-  FaArrowDown,
   FaArrowLeft,
   FaCalendarWeek,
   FaCapsules,
   FaCheckCircle,
   FaChevronDown,
-  FaEllipsisH,
-  FaEllipsisV,
   FaFileExport,
   FaPlusCircle,
   FaToggleOff,
   FaToggleOn,
 } from "react-icons/fa"
-import { LuColumns2, LuFlag, LuListFilter, LuRows2 } from "react-icons/lu"
+import { LuColumns2, LuListFilter, LuRows2 } from "react-icons/lu"
 import MainLayout from "./layout"
 import TaskCardView from "@/components/ui/card-view"
 import { handleExportExcel } from "@/utils/export-task"
@@ -43,7 +35,7 @@ import SearchInput from "@/components/ui/search-input"
 import { FilterModal } from "@/components/modals/filter-modal"
 import { DatePickerModal } from "@/components/modals/date-picker"
 import { mockTasks } from "@/constants"
-import { Task } from "@/types/task"
+import { Filters, Task } from "@/types/task"
 import { TaskTable } from "@/components/ui/task-table"
 import CreateTaskModal from "@/components/modals/create-task"
 
@@ -66,12 +58,6 @@ type HeaderAction = {
   icon: React.ReactNode
   bg: string
   onClick: () => void
-}
-
-interface Filters {
-  priority: string[]
-  status: string[]
-  assignee: string[]
 }
 
 interface DateRange {
@@ -98,7 +84,12 @@ const TaskManagement = () => {
     end: ""
   })
   const [isDenseView, setIsDenseView] = useState<boolean>(false)
-  const { colorMode } = useColorMode()
+  const [createModalStatus, setCreateModalStatus] = useState<string>("")
+
+  const handleOpenCreateModal = (defaultStatus: string) => {
+    setCreateModalStatus(defaultStatus)
+    setIsAddTaskModalOpen(true)
+  }
 
   const handleTaskMove = (taskId: number, newStatus: Task['status']) => {
     setTasks(prevTasks =>
@@ -134,14 +125,14 @@ const TaskManagement = () => {
     return matchesSearch && matchesPriority && matchesStatus && matchesDateRange
   })
 
-  const handleAddTask = (newTask: any) => {
+  const handleAddTask = (newTask: Task) => {
     const id = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1
     const taskToAdd: Task = {
       id,
       name: newTask.name,
       status: newTask.status,
-      date: newTask.dates || "00/00/0000 - 00/00/0000",
-      assignee: newTask.assignees || [],
+      date: newTask.date || "00/00/0000 - 00/00/0000",
+      assignee: newTask.assignee || [],
       priority: newTask.priority || "normal",
     }
     setTasks([taskToAdd, ...tasks])
@@ -379,7 +370,7 @@ const TaskManagement = () => {
               {viewMode === "table" ? (
                 <TaskTable tasks={taskGroups[tab.value]} isDenseView={isDenseView} />
               ) : (
-                <TaskCardView tasks={taskGroups[tab.value]} onTaskMove={handleTaskMove} />
+                <TaskCardView tasks={taskGroups[tab.value]} onTaskMove={handleTaskMove} onOpenCreateModal={handleOpenCreateModal} />
               )}
             </Tabs.Content>
           ))}
@@ -445,10 +436,10 @@ const TaskManagement = () => {
               collection={rowsPerPageOptions}
               size="sm"
               value={[rowsPerPage.toString()]}
-              onValueChange={(e: any) => {
-                setRowsPerPage(Number(e.value[0]))
-                setCurrentPage(1)
-              }}
+              onValueChange={(details: ValueChangeDetails<{ label: string; value: string }>) => {
+                setRowsPerPage(Number(details.value));
+                setCurrentPage(1);
+              }}              
             >
               <Select.Control w="70px">
                 <Select.Trigger borderRadius="50px" className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
@@ -496,6 +487,7 @@ const TaskManagement = () => {
         isOpen={isAddTaskModalOpen}
         onClose={() => setIsAddTaskModalOpen(false)}
         onSubmit={handleAddTask}
+        defaultStatus={createModalStatus}
       />
 
     </MainLayout>

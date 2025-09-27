@@ -1,5 +1,5 @@
 export type SidebarItemProps = {
-    item: any
+    item: string[]
     isSubItem?: boolean
     collapsed?: boolean
     setCollapsed?: React.Dispatch<React.SetStateAction<boolean>>

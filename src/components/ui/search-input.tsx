@@ -1,6 +1,6 @@
 import { Box, Input, IconButton } from "@chakra-ui/react"
 import { SearchNormal1 } from "iconsax-react"
-import { FaTimes, FaTimesCircle } from "react-icons/fa"
+import { FaTimesCircle } from "react-icons/fa"
 
 interface SearchInputProps {
   value: string

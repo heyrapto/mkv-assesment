@@ -6,3 +6,9 @@ export interface Task {
     status: "todo" | "progress" | "complete"
     assignee: { name: string; avatar: string }[]
 }
+
+export interface Filters {
+    priority: string[]
+    status: string[]
+    assignee: string[]
+}

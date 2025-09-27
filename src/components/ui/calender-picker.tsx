@@ -3,7 +3,7 @@ import { useState } from "react"
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"
 
 export const CalendarPicker = ({ onDateSelect, onClose }: { onDateSelect: (date: string) => void, onClose: () => void }) => {
-    const [currentMonth, setCurrentMonth] = useState("January 2025")
+    const [currentMonth] = useState("January 2025")
     const [selectedDate, setSelectedDate] = useState<number | null>(null)
   
     const daysOfWeek = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]

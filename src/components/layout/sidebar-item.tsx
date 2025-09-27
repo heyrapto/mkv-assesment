@@ -15,12 +15,32 @@ import {
 } from '@chakra-ui/react'
 import { Collapse } from '@chakra-ui/transition'
 import { useColorMode } from '@/components/ui/color-mode'
-import { SidebarItemProps } from '@/types/sidebar'
 import { FaChevronDown } from 'react-icons/fa'
+
+export interface SidebarSubItem {
+    name: string
+    active?: boolean
+    icon?: React.ComponentType<{ size?: number; color?: string }>
+  }
+  
+  export interface SidebarItemType {
+    name: string
+    active?: boolean
+    icon?: React.ComponentType<{ size?: number; color?: string }>
+    items?: SidebarSubItem[]
+  }
+  
+  export interface SidebarItemProps {
+    item: SidebarItemType
+    isSubItem?: boolean
+    collapsed?: boolean
+    setCollapsed?: (collapsed: boolean) => void
+  }
+  
 
 export const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = false, collapsed = false, setCollapsed }) => {
     const collapse = useDisclosure({
-        defaultOpen: item.active || item.items?.some((sub: any) => sub.active),
+        defaultOpen: item.active || item.items?.some((sub: SidebarSubItem) => sub.active),
     })
     const { colorMode } = useColorMode()
     const bg = colorMode === 'light' ? 'white' : 'gray.800'
@@ -53,7 +73,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = fals
                             <PopoverArrow />
                             <PopoverBody p={2}>
                                 <VStack gap={1} align="stretch">
-                                    {item.items.map((sub: any) => (
+                                    {item.items.map((sub: SidebarSubItem) => (
                                         <Box
                                             key={sub.name}
                                             px={3}
@@ -123,7 +143,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = fals
             {item.items && (
                 <Collapse in={collapse.open}>
                     <VStack gap={1} align="stretch" pl={4} mt={1} pr={2}>
-                        {item.items.map((sub: any) => (
+                        {item.items.map((sub: SidebarSubItem) => (
                             <Box
                                 key={sub.name}
                                 px={4}

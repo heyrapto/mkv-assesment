@@ -30,7 +30,8 @@ const Sidebar: React.FC = () => {
       overflowY="auto"
       position="sticky"
       top={0}
-    >
+      className="custom-scrollbar" 
+      >
       {/* Logo + Toggle */}
       <Flex
         borderBottom="1px"
@@ -62,7 +63,6 @@ const Sidebar: React.FC = () => {
         )}
       </Flex>
 
-
       {/* Navigation */}
       <VStack gap={2} align="stretch" py={4}>
         {sidebarItems.map((item) => (
@@ -70,7 +70,10 @@ const Sidebar: React.FC = () => {
         ))}
       </VStack>
 
-      <SettingsSection collapsed={collapsed} />
+      {/* Settings Section */}
+      <Box className='flex flex-col w-full rounded-md'>
+        <SettingsSection collapsed={collapsed} />
+      </Box>
     </Box>
   )
 }

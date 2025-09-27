@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react'
 import {
   Box,
@@ -6,13 +8,11 @@ import {
   Text,
   Select,
   Portal,
-  createListCollection,
-  Image
+  createListCollection
 } from '@chakra-ui/react'
 import { useColorMode } from '@/components/ui/color-mode'
 import { FaChevronDown } from 'react-icons/fa'
 
-// Language options
 const languageOptions = createListCollection({
   items: [
     { label: "English", value: "en", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
@@ -30,8 +30,6 @@ interface SettingsSectionProps {
 const SettingsSection: React.FC<SettingsSectionProps> = ({ collapsed }) => {
   const { colorMode, toggleColorMode } = useColorMode()
   const [selectedLanguage, setSelectedLanguage] = useState("en")
-  
-  const bg = colorMode === 'light' ? 'white' : 'gray.800'
   const borderColor = colorMode === 'light' ? '#E5E7EB' : 'gray.600'
   const cardBg = colorMode === 'light' ? '#F8F9FA' : 'gray.700'
   
@@ -52,7 +50,7 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({ collapsed }) => {
             <Select.Root
               collection={languageOptions}
               value={[selectedLanguage]}
-              onValueChange={(e: any) => setSelectedLanguage(e.value[0])}
+              onValueChange={(e) => setSelectedLanguage(e.value[0])}
               size="md"
             >
               <Select.Control>
