@@ -24,7 +24,6 @@ export const TaskTable = ({ tasks, isDenseView }: TaskTableProps) => {
           gridTemplateColumns="2fr 1.5fr 1fr 1fr auto"
           gap={4}
           px={6}
-          py={isDenseView ? 2 : 4}
           bg="#F9FAFB"
           borderBottom="1px solid"
           borderColor={borderColor}
@@ -34,37 +33,22 @@ export const TaskTable = ({ tasks, isDenseView }: TaskTableProps) => {
           borderTopRadius="lg"
           position="relative"
         >
-          <Text>Name</Text>
-          <Box position="relative">
+          <Text position="relative" borderRightWidth="1px" py="15px" borderRightColor={borderColor}>Name</Text>
+          <Box position="relative" className="flex items-center" borderRightWidth="1px" py="15px" borderRightColor={borderColor}>
             <Text>Date</Text>
             <Box
-              position="absolute"
-              right="-2"
-              top="0"
-              bottom="0"
-              width="1px"
               bg={borderColor}
             />
           </Box>
-          <Box position="relative">
+          <Box position="relative" borderRightWidth="1px" py="15px" borderRightColor={borderColor}>
             <Text>Assignee</Text>
             <Box
-              position="absolute"
-              right="-2"
-              top="0"
-              bottom="0"
-              width="1px"
               bg={borderColor}
             />
           </Box>
-          <Box position="relative">
+          <Box position="relative" className="flex items-center">
             <Text>Priority</Text>
             <Box
-              position="absolute"
-              right="-2"
-              top="0"
-              bottom="0"
-              width="1px"
               bg={borderColor}
             />
           </Box>
