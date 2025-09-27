@@ -43,7 +43,6 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({ item, isSubItem = fals
         defaultOpen: item.active || item.items?.some((sub: SidebarSubItem) => sub.active),
     })
     const { colorMode } = useColorMode()
-    const bg = colorMode === 'light' ? 'white' : 'gray.800'
     const hoverBg = colorMode === 'light' ? 'green.50' : 'gray.700'
     const activeBg = colorMode === 'light' ? 'green.100' : 'green.900'
     const textColor = colorMode === 'light' ? 'gray.700' : 'gray.200'

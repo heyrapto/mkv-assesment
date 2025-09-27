@@ -1,5 +1,5 @@
 export interface Task {
-    id: number
+    id: number | string
     name: string
     date: string 
     priority: "Urgent" | "Important" | "Medium" | "Low"

@@ -16,6 +16,7 @@
     "@chakra-ui/transition": "^2.1.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@hello-pangea/dnd": "^18.0.1",
     "framer-motion": "^12.23.22",
     "iconsax-react": "^0.0.8",
     "iconsax-reactjs": "^0.0.8",

@@ -57,7 +57,6 @@ const quickDateOptions = [
   { label: "4 Week", value: "4week", day: "4 Feb" }
 ]
 
-// Enhanced Calendar Component
 const CalendarPicker = ({ onDateSelect, onClose }: { onDateSelect: (date: string) => void, onClose: () => void }) => {
   const [currentMonth] = useState("January 2025")
   const [selectedDate, setSelectedDate] = useState<number | null>(null)
@@ -102,11 +101,11 @@ const CalendarPicker = ({ onDateSelect, onClose }: { onDateSelect: (date: string
 
       {/* Calendar Header */}
       <Flex justify="space-between" align="center" mb={4}>
-        <IconButton variant="ghost" size="sm" onClick={() => {}}>
+        <IconButton variant="ghost" size="sm" onClick={() => { }}>
           <FaChevronLeft size={14} />
         </IconButton>
         <Text fontWeight="600" fontSize="md">{currentMonth}</Text>
-        <IconButton variant="ghost" size="sm" onClick={() => {}}>
+        <IconButton variant="ghost" size="sm" onClick={() => { }}>
           <FaChevronRight size={14} />
         </IconButton>
       </Flex>
@@ -126,7 +125,7 @@ const CalendarPicker = ({ onDateSelect, onClose }: { onDateSelect: (date: string
         {Array.from({ length: 2 }, (_, i) => (
           <Box key={`empty-${i}`} />
         ))}
-        
+
         {daysInMonth.map((day) => (
           <Box
             key={day}
@@ -163,7 +162,7 @@ interface CreateTaskModalProps {
 export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: CreateTaskModalProps) => {
   const [taskName, setTaskName] = useState("")
   const [status, setStatus] = useState("todo")
-  const [dates, setDates] = useState("")
+  const [date, setDates] = useState("")
   const [selectedAssignees, setSelectedAssignees] = useState<number[]>([])
   const [priority, setPriority] = useState("")
   const [description, setDescription] = useState("")
@@ -182,21 +181,36 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
 
   if (!isOpen) return null
 
+  const priorityMap: Record<string, Task["priority"]> = {
+    urgent: "Urgent",
+    important: "Important",
+    normal: "Medium",
+    low: "Low",
+  }
+
+  const statusMap: Record<string, Task["status"]> = {
+    todo: "todo",
+    progress: "progress",
+    complete: "complete",
+  }
+
   const handleSubmit = () => {
-    const selectedAssigneeData = availableAssignees.filter(assignee => 
+    const selectedAssigneeData = availableAssignees.filter(assignee =>
       selectedAssignees.includes(assignee.id)
     )
-    
-    const newTask = {
+
+
+    const newTask: Task = {
+      id: crypto.randomUUID(), 
       name: taskName,
-      status,
-      dates,
-      assignee: selectedAssigneeData,
-      priority,
+      status: statusMap[status], 
+      date: date,
+      assignee: selectedAssigneeData.map(a => ({ name: a.name, avatar: a.avatar })),
+      priority: priorityMap[priority],
     }
-    
+
     onSubmit(newTask)
-    
+
     setTaskName("")
     setStatus("todo")
     setDates("")
@@ -207,8 +221,8 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
   }
 
   const toggleAssignee = (assigneeId: number) => {
-    setSelectedAssignees(prev => 
-      prev.includes(assigneeId) 
+    setSelectedAssignees(prev =>
+      prev.includes(assigneeId)
         ? prev.filter(id => id !== assigneeId)
         : [...prev, assigneeId]
     )
@@ -253,9 +267,9 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
           <Text fontSize="xl" fontWeight="400" color="#9CA3AF">
             Task Name
           </Text>
-          <IconButton 
-            variant="ghost" 
-            size="sm" 
+          <IconButton
+            variant="ghost"
+            size="sm"
             onClick={onClose}
             color="#9CA3AF"
             _hover={{ bg: "#F3F4F6" }}
@@ -287,10 +301,10 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
           <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
             <HStack justify="space-between">
               <HStack gap={3}>
-                <Box 
-                  w="20px" 
-                  h="20px" 
-                  borderRadius="full" 
+                <Box
+                  w="20px"
+                  h="20px"
+                  borderRadius="full"
                   border="2px solid"
                   borderColor="#E5E7EB"
                   bg="white"
@@ -316,7 +330,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                 >
                   {statusOptions.find(opt => opt.value === status)?.label || "To Do"}
                 </Badge>
-                
+
                 {showStatusDropdown && (
                   <Box
                     position="absolute"
@@ -368,7 +382,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                   fontSize="14px"
                   fontWeight="400"
                 >
-                  {dates || "00/00/0000"}
+                  {date || "00/00/0000"}
                 </Text>
 
                 {showQuickDates && (
@@ -402,7 +416,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                         <Text fontSize="sm" color="#6B7280" fontWeight="400">{option.day}</Text>
                       </HStack>
                     ))}
-                    
+
                     <Box borderTop="1px solid #E5E7EB" mt={2} pt={2}>
                       <HStack
                         px={3}
@@ -594,7 +608,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                         <Text fontSize="sm" fontWeight="500">{option.label}</Text>
                       </HStack>
                     ))}
-                    
+
                     <Box borderTop="1px solid #E5E7EB" mt={2} pt={2}>
                       <HStack
                         px={3}

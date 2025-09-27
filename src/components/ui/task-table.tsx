@@ -1,3 +1,5 @@
+"use client"
+
 import { HStack, Box, Text, AvatarGroup, Avatar, IconButton } from "@chakra-ui/react"
 import { FaEllipsisH } from "react-icons/fa"
 import { LuFlag } from "react-icons/lu"

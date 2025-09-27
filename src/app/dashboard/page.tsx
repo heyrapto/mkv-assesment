@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ChangeEvent, useState } from "react"
+import React, { useState } from "react"
 import {
   Box,
   Heading,
@@ -126,7 +126,7 @@ const TaskManagement = () => {
   })
 
   const handleAddTask = (newTask: Task) => {
-    const id = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1
+    const id = tasks.length > 0 ? Math.max(...tasks.map(t => Number(t.id))) + 1 : 1
     const taskToAdd: Task = {
       id,
       name: newTask.name,
@@ -136,7 +136,7 @@ const TaskManagement = () => {
       priority: newTask.priority || "normal",
     }
     setTasks([taskToAdd, ...tasks])
-  }
+  }  
 
   const taskGroups: Record<string, Task[]> = {
     all: filteredTasks,
@@ -436,10 +436,10 @@ const TaskManagement = () => {
               collection={rowsPerPageOptions}
               size="sm"
               value={[rowsPerPage.toString()]}
-              onValueChange={(details: ValueChangeDetails<{ label: string; value: string }>) => {
+              onValueChange={(details => {
                 setRowsPerPage(Number(details.value));
                 setCurrentPage(1);
-              }}              
+              })}              
             >
               <Select.Control w="70px">
                 <Select.Trigger borderRadius="50px" className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
