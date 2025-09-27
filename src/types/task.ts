@@ -4,6 +4,5 @@ export interface Task {
     date: string 
     priority: "Urgent" | "Important" | "Medium" | "Low"
     status: "todo" | "progress" | "complete"
-    assignee: { name: string; avatar?: string }[]
-  }
-  
+    assignee: { name: string; avatar: string }[]
+}
