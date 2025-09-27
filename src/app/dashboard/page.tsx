@@ -17,15 +17,10 @@ import {
   Flex,
   Select,
   Portal,
-  createListCollection
+  createListCollection,
 } from "@chakra-ui/react"
 
 import { useColorMode } from "@/components/ui/color-mode"
-import {
-  SearchNormal1,
-  RowHorizontal,
-  RowVertical,
-} from "iconsax-react"
 import {
   FaArrowDown,
   FaArrowLeft,
@@ -42,80 +37,14 @@ import {
 import { LuColumns2, LuFlag, LuListFilter, LuRows2 } from "react-icons/lu"
 import MainLayout from "./layout"
 import TaskCardView from "@/components/ui/card-view"
+import { handleExportExcel } from "@/utils/export-task"
+import SearchInput from "@/components/ui/search-input"
+import { FilterModal } from "@/components/modals/filter-modal"
+import { DatePickerModal } from "@/components/modals/date-picker"
+import { mockTasks } from "@/constants"
+import { Task } from "@/types/task"
 
-const mockTasks = [
-  {
-    id: 1,
-    name: "MKV Intranet V2",
-    date: "04/06/2024 - 16/06/2024",
-    assignee: [
-      { name: "JI", avatar: "https://i.pravatar.cc/150?u=ji" },
-      { name: "Alex", avatar: "https://i.pravatar.cc/150?u=alex" },
-    ],
-    priority: "Medium",
-    status: "todo",
-  },
-  {
-    id: 2,
-    name: "Design System",
-    date: "23/06/2024 - 24/06/2024",
-    assignee: [{ name: "Sam", avatar: "https://i.pravatar.cc/150?u=sam" }],
-    priority: "Important",
-    status: "todo",
-  },
-  {
-    id: 3,
-    name: "Medical Appointment",
-    date: "16/06/2024 - 18/06/2024",
-    assignee: [
-      { name: "User 1", avatar: "https://i.pravatar.cc/150?u=user1" },
-      { name: "User 2", avatar: "https://i.pravatar.cc/150?u=user2" },
-    ],
-    priority: "Urgent",
-    status: "todo",
-  },
-  {
-    id: 4,
-    name: "Testing Data",
-    date: "23/06/2024 - 24/06/2024",
-    assignee: [{ name: "Chris", avatar: "https://i.pravatar.cc/150?u=chris" }],
-    priority: "Urgent",
-    status: "progress",
-  },
-  {
-    id: 5,
-    name: "Patient Request",
-    date: "16/06/2024 - 18/06/2024",
-    assignee: [{ name: "Taylor", avatar: "https://i.pravatar.cc/150?u=taylor" }],
-    priority: "Urgent",
-    status: "progress",
-  },
-  {
-    id: 6,
-    name: "Patient Meetup",
-    date: "23/06/2024 - 24/06/2024",
-    assignee: [{ name: "Jordan", avatar: "https://i.pravatar.cc/150?u=jordan" }],
-    priority: "Low",
-    status: "complete",
-  },
-]
-
-const getPriorityColor = (priority: string) => {
-  switch (priority) {
-    case "Urgent":
-      return "red"
-    case "Important":
-      return "orange"
-    case "Medium":
-      return "blue"
-    case "Low":
-      return "gray"
-    default:
-      return "gray"
-  }
-}
-
-const TaskTable = ({ tasks }: any) => {
+const TaskTable = ({ tasks }: Task[]) => {
   const { colorMode } = useColorMode()
   const borderColor = colorMode === "light" ? "#E5E7EB" : "#4A5568"
 
@@ -144,7 +73,7 @@ const TaskTable = ({ tasks }: any) => {
       </Box>
 
       {/* Table Rows */}
-      {tasks.map((task: any, index: number) => (
+      {tasks.map((task: Task, index: number) => (
         <Box
           key={task.id}
           display="grid"
@@ -209,33 +138,6 @@ const TaskTable = ({ tasks }: any) => {
   )
 }
 
-const SearchInput = ({ searchTerm, setSearchTerm }: any) => (
-  <Box position="relative" maxW="400px">
-    <Box
-      position="absolute"
-      left={3}
-      top="50%"
-      transform="translateY(-50%)"
-      zIndex={2}
-    >
-      <SearchNormal1 size="20" color="#9CA3AF" />
-    </Box>
-    <Input
-      placeholder="Search for To-Do"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      bg="white"
-      border="1px"
-      borderColor="#E5E7EB"
-      borderRadius="lg"
-      pl={10}
-      h="40px"
-      fontSize="sm"
-      _focus={{ borderColor: "#3B82F6", boxShadow: "0 0 0 1px #3B82F6" }}
-    />
-  </Box>
-)
-
 const rowsPerPageOptions = createListCollection({
   items: [
     { label: "10", value: "10" },
@@ -249,7 +151,18 @@ const TaskManagement = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [viewMode, setViewMode] = useState<"table" | "card">("table")
-  const [tasks, setTasks] = useState(mockTasks)
+  const [tasks, setTasks] = useState<Task[]>(mockTasks)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false)
+  const [filters, setFilters] = useState({
+    priority: [] as string[],
+    status: [] as string[],
+    assignee: [] as string[]
+  })
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: ""
+  })
   const { colorMode } = useColorMode()
   const bg = colorMode === "light" ? "white" : "gray.800"
 
@@ -261,9 +174,31 @@ const TaskManagement = () => {
     )
   }
 
-  const filteredTasks = tasks.filter((task) =>
-    task.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const handleBackClick = () => {
+    window.history.back()
+  }
+
+  const applyFilters = (activeFilters: any) => {
+    console.log("Applied filters:", activeFilters)
+  }
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesPriority = filters.priority.length === 0 || filters.priority.includes(task.priority)
+    const matchesStatus = filters.status.length === 0 || filters.status.includes(task.status)
+
+    let matchesDateRange = true
+    if (dateRange.start && dateRange.end) {
+      const taskStartDate = new Date(task.date.split(' - ')[0].split('/').reverse().join('-'))
+      const taskEndDate = new Date(task.date.split(' - ')[1].split('/').reverse().join('-'))
+      const filterStartDate = new Date(dateRange.start)
+      const filterEndDate = new Date(dateRange.end)
+
+      matchesDateRange = taskStartDate >= filterStartDate && taskEndDate <= filterEndDate
+    }
+
+    return matchesSearch && matchesPriority && matchesStatus && matchesDateRange
+  })
 
   const taskGroups: Record<string, any[]> = {
     all: filteredTasks,
@@ -278,23 +213,43 @@ const TaskManagement = () => {
     { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#10B981" },
   ]
 
-  const headerActions = [
-    { type: "icon", icon: <FaToggleOff size="20" />, aria: "Settings" },
-    { type: "icon", icon: <LuListFilter size="20" />, aria: "Filter" },
-    { type: "icon", icon: <FaCalendarWeek size="20" />, aria: "Category" },
-    {
-      type: "button",
-      label: "Export xlsx",
-      icon: <FaFileExport size="18" />,
-      bg: "#41245F",
-    },
-    {
-      type: "button",
-      label: "Add Task",
-      icon: <FaPlusCircle size="18" />,
-      bg: "#75C5C1",
-    },
-  ]
+  const headerActions: Array<
+  | { type: "icon"; icon: React.ReactNode; aria: string; onClick: () => void }
+  | { type: "button"; label: string; icon: React.ReactNode; bg: string; onClick: () => void }
+> = [
+  {
+    type: "icon",
+    icon: <FaToggleOff size={20} />,
+    aria: "Settings",
+    onClick: () => console.log("Settings clicked")
+  },
+  {
+    type: "icon",
+    icon: <LuListFilter size={20} />,
+    aria: "Filter",
+    onClick: () => setIsFilterModalOpen(true)
+  },
+  {
+    type: "icon",
+    icon: <FaCalendarWeek size={20} />,
+    aria: "Category",
+    onClick: () => setIsDateModalOpen(true)
+  },
+  {
+    type: "button",
+    label: "Export xlsx",
+    icon: <FaFileExport size={18} />,
+    bg: "#41245F",
+    onClick: () => handleExportExcel(filteredTasks)
+  },
+  {
+    type: "button",
+    label: "Add Task",
+    icon: <FaPlusCircle size={18} />,
+    bg: "#75C5C1",
+    onClick: () => console.log("Add task clicked")
+  },
+];
 
   const totalPages = Math.ceil(filteredTasks.length / rowsPerPage)
   const startIndex = (currentPage - 1) * rowsPerPage
@@ -313,6 +268,7 @@ const TaskManagement = () => {
               borderColor="gray.800"
               _hover={{ bg: "gray.300" }}
               borderRadius="full"
+              onClick={handleBackClick}
             >
               <FaArrowLeft className="text-gray-700" />
             </IconButton>
@@ -331,6 +287,7 @@ const TaskManagement = () => {
                   height="50px"
                   size="2xl"
                   aria-label={action.aria}
+                  onClick={action.onClick}
                 >
                   {action.icon}
                 </IconButton>
@@ -343,6 +300,7 @@ const TaskManagement = () => {
                   width="156px"
                   borderRadius="10px"
                   color="white"
+                  onClick={action.onClick}
                 >
                   {action.icon}
                   {action.label}
@@ -354,7 +312,12 @@ const TaskManagement = () => {
 
         {/* Search */}
         <Flex justify="space-between" align="center" className="bg-[#E9F5F7] rounded-md" padding="10px">
-          <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search tasks..."
+            maxW="500px"
+          />
           <HStack className="flex gap-2 bg-white h-[40px]" padding="10px" borderRadius="lg">
             <IconButton
               backgroundColor={viewMode === "table" ? "#75C5C1" : "gray.100"}
@@ -376,6 +339,38 @@ const TaskManagement = () => {
             </IconButton>
           </HStack>
         </Flex>
+
+        {/* Active Filters Display */}
+        {(filters.priority.length > 0 || filters.status.length > 0 || dateRange.start) && (
+          <HStack gap={2} flexWrap="wrap">
+            <Text fontSize="sm" color="gray.600">Active Filters:</Text>
+            {filters.priority.map(priority => (
+              <Badge key={priority} bg="#75C5C1" color="white" borderRadius="md">
+                {priority}
+              </Badge>
+            ))}
+            {filters.status.map(status => (
+              <Badge key={status} bg="#41245F" color="white" borderRadius="md">
+                {status}
+              </Badge>
+            ))}
+            {dateRange.start && (
+              <Badge bg="#FBBF24" color="white" borderRadius="md">
+                {dateRange.start} to {dateRange.end}
+              </Badge>
+            )}
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={() => {
+                setFilters({ priority: [], status: [], assignee: [] })
+                setDateRange({ start: "", end: "" })
+              }}
+            >
+              Clear All
+            </Button>
+          </HStack>
+        )}
 
         {/* Tabs */}
         <Tabs.Root
@@ -496,7 +491,7 @@ const TaskManagement = () => {
             </Button>
           </HStack>
 
-          <HStack gap={2} className="">
+          <HStack gap={2} className="" whiteSpace="nowrap">
             <Text fontSize="sm" color="gray.600">
               Rows Per page:
             </Text>
@@ -509,28 +504,50 @@ const TaskManagement = () => {
                 setCurrentPage(1)
               }}
             >
-              <Select.Control w="70px"  >
-                <Select.Trigger borderRadius="50px" className="flex items-center gap-2 cursor-pointer">
-                  <Select.ValueText />
-                  <FaChevronDown />
+              <Select.Control w="70px">
+                <Select.Trigger borderRadius="50px"  className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
+                  <Select.ValueText className="flex-1 text-center" />
+                  <FaChevronDown className="flex-1 text-center"  />
                 </Select.Trigger>
+
               </Select.Control>
               <Portal>
                 <Select.Positioner>
-                  <Select.Content>
+                  <Select.Content paddingY="2px" className="gap-3 flex flex-col items-center justify-center py-2">
                     {rowsPerPageOptions.items.map((item) => (
                       <Select.Item key={item.value} item={item}>
-                        {item.label}
-                        <Select.ItemIndicator />
+                        <Flex align="center" justify="center" w="full">
+                          {item.label}
+                          <Select.ItemIndicator />
+                        </Flex>
                       </Select.Item>
+
                     ))}
                   </Select.Content>
                 </Select.Positioner>
               </Portal>
             </Select.Root>
           </HStack>
+
         </Flex>
       </VStack>
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filters={filters}
+        setFilters={setFilters}
+        onApplyFilters={applyFilters}
+      />
+
+      {/* Date Picker Modal */}
+      <DatePickerModal
+        isOpen={isDateModalOpen}
+        onClose={() => setIsDateModalOpen(false)}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
     </MainLayout>
   )
 }

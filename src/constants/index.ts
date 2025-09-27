@@ -32,7 +32,15 @@ export const sidebarItems = [
         { name: 'Form Task', href: '/form-task' },
         { name: 'Agenda', href: '/agenda-sub' },
         { name: 'Follow up system', href: '/follow-up' },
-        { name: 'Group Settings', href: '/group-settings' },
+        {
+          name: 'Group Settings',
+          href: '/group-settings',
+          items: [
+            { name: 'Permissions', href: '/group-settings/permissions' },
+            { name: 'Roles', href: '/group-settings/roles' },
+            { name: 'Notifications', href: '/group-settings/notifications' },
+          ],
+        },
       ],
     },
     { name: 'Phone numbers', icon: Call, href: '/phone' },
@@ -53,6 +61,7 @@ export const sidebarItems = [
       ],
     },
   ]
+  
 
   export const badges = ["VIM", "LMS", "BHV", "DataLek"]
 
@@ -63,3 +72,60 @@ export const sidebarItems = [
     { icon: FaBell, label: "Notifications" },
   ]
   
+
+export  const mockTasks = [
+    {
+      id: 1,
+      name: "MKV Intranet V2",
+      date: "04/06/2024 - 16/06/2024",
+      assignee: [
+        { name: "JI", avatar: "https://i.pravatar.cc/150?u=ji" },
+        { name: "Alex", avatar: "https://i.pravatar.cc/150?u=alex" },
+      ],
+      priority: "Medium",
+      status: "todo",
+    },
+    {
+      id: 2,
+      name: "Design System",
+      date: "23/06/2024 - 24/06/2024",
+      assignee: [{ name: "Sam", avatar: "https://i.pravatar.cc/150?u=sam" }],
+      priority: "Important",
+      status: "todo",
+    },
+    {
+      id: 3,
+      name: "Medical Appointment",
+      date: "16/06/2024 - 18/06/2024",
+      assignee: [
+        { name: "User 1", avatar: "https://i.pravatar.cc/150?u=user1" },
+        { name: "User 2", avatar: "https://i.pravatar.cc/150?u=user2" },
+      ],
+      priority: "Urgent",
+      status: "todo",
+    },
+    {
+      id: 4,
+      name: "Testing Data",
+      date: "23/06/2024 - 24/06/2024",
+      assignee: [{ name: "Chris", avatar: "https://i.pravatar.cc/150?u=chris" }],
+      priority: "Urgent",
+      status: "progress",
+    },
+    {
+      id: 5,
+      name: "Patient Request",
+      date: "16/06/2024 - 18/06/2024",
+      assignee: [{ name: "Taylor", avatar: "https://i.pravatar.cc/150?u=taylor" }],
+      priority: "Urgent",
+      status: "progress",
+    },
+    {
+      id: 6,
+      name: "Patient Meetup",
+      date: "23/06/2024 - 24/06/2024",
+      assignee: [{ name: "Jordan", avatar: "https://i.pravatar.cc/150?u=jordan" }],
+      priority: "Low",
+      status: "complete",
+    },
+]

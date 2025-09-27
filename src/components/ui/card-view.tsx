@@ -75,15 +75,15 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
                 {/* Column Header */}
                 <HStack justify="space-between" mb={4} p="4" borderRadius="lg" bg={config.bgColor}>
                     <HStack>
-                        <Box
-                            w="8px"
-                            h="8px"
-                            borderRadius="full"
-                            bg={config.color}
-                        />
-                        <Text fontWeight="600" color="#374151">
-                            {config.title}
-                        </Text>
+                        <Flex className="bg-white flex items-center gap-3" borderRadius="lg" padding="2">
+                            <LuFlag
+                                size={16}
+                                color={config.color}
+                            />
+                            <Text fontWeight="600" color="#374151">
+                                {config.title}
+                            </Text>
+                        </Flex>
                         <Text
                             fontSize="sm"
                             color="#6B7280"
@@ -150,10 +150,10 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove }) => {
                             {/* Bottom Section */}
                             <Flex className="flex flex-col gap-6">
                                 <HStack>
-                                    <FaUserCircle size="20" color="#6B7280" />
+                                    <FaUserCircle size="12" color="#6B7280" />
                                     <AvatarGroup size="xs">
                                         {task.assignee.map((user, idx) => (
-                                            <Avatar.Root key={idx} size="xs">
+                                            <Avatar.Root key={idx} size="sm">
                                                 <Avatar.Fallback
                                                     bg="#E5E7EB"
                                                     color="#374151"
