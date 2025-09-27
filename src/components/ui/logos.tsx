@@ -27,7 +27,7 @@ const Second = (props: LogoProps) => (
 );
 
 const Third = (props: LogoProps) => (
-    <svg width="30" height="13" viewBox="0 0 30 13" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+    <svg width="30" height="13" viewBox="0 0 30 13" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" {...props}>
 <rect width="30" height="12.1622" fill="url(#pattern0_2001_59921)"/>
 <defs>
 <pattern id="pattern0_2001_59921" patternContentUnits="objectBoundingBox" width="1" height="1">
@@ -40,7 +40,7 @@ const Third = (props: LogoProps) => (
 );
 
 const Fourth = (props: LogoProps) => (
-    <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+    <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" {...props}>
 <rect width="25" height="25" rx="12.5" fill="url(#pattern0_2001_59924)"/>
 <defs>
 <pattern id="pattern0_2001_59924" patternContentUnits="objectBoundingBox" width="1" height="1">

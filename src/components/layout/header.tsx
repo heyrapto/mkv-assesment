@@ -18,10 +18,11 @@ import {
   MenuList,
   MenuItem,
 } from "@chakra-ui/menu"
-import { FaChevronDown } from "react-icons/fa"
+import { FaBell, FaChevronDown } from "react-icons/fa"
 import SearchInput from "../ui/search-input"
 import { Logo } from "../ui/logos"
 import { actions, badges, menuItems } from "@/constants"
+import { LuLink } from "react-icons/lu"
 
 export const logos = [
   { id: "first", component: <Logo.First /> },
@@ -34,12 +35,13 @@ const Header = () => {
   const { colorMode } = useColorMode()
   const [search, setSearch] = useState("")
   const bg = colorMode === "light" ? "white" : "gray.800"
-  const borderColor = colorMode === "light" ? "gray.900" : "gray.700"
+  const borderColor = colorMode === "light" ? "#CDD6E9" : "gray.700"
 
   return (
     <Box
       bg={bg}
-      borderColor={borderColor}
+      borderBottomColor={borderColor}
+      borderWidth="1px"
       px={6}
       py={4}
       position="sticky"
@@ -73,6 +75,12 @@ const Header = () => {
             {logos.map((logo) => (
               <Box
                 key={logo.id}
+                height="50px"
+          px="1.5"
+          borderColor="#CDD6E9"
+          borderWidth="1px"
+          borderRadius="10px"
+          backgroundColor="#F7F7F7"
                 className="h-[50px] w-[50px] flex items-center justify-center border border-[#EEF1F9] rounded-md"
               >
                 {logo.component}
@@ -81,6 +89,16 @@ const Header = () => {
           </Flex>
 
           {/* Badges */}
+          <Flex 
+          gap={2}
+          height="50px"
+          px="1.5"
+          align="center"
+          borderColor="#CDD6E9"
+          borderWidth="1px"
+          borderRadius="10px"
+          backgroundColor="#F7F7F7"
+          >
           <Button
             variant="ghost"
             size="sm"
@@ -88,12 +106,14 @@ const Header = () => {
             width="120px"
             height="38px"
             borderRadius="10px"
+            borderColor="#CDD6E9"
+            borderWidth="1px"
             className='font-bold'
             backgroundColor="#41245F"
           >
             Melding maken
           </Button>
-          <Flex gap={2}>
+
             {badges.map((label) => (
               <Badge
                 key={label}
@@ -107,6 +127,14 @@ const Header = () => {
               </Badge>
             ))}
           </Flex>
+
+          <IconButton aria-label={"Settings"}
+          height="45px"
+          px="1.5"
+           borderColor="#CDD6E9"
+            borderWidth="1px" backgroundColor="#F7F7F7" variant="ghost" size="sm">
+              <LuLink size="22" />
+            </IconButton>
         </Flex>
 
         {/* RIGHT */}
@@ -116,17 +144,17 @@ const Header = () => {
           flex="1"
           gap={3}
         >
-          {/* Action buttons */}
-          {actions.map(({ icon: Icon, label }) => (
-            <IconButton key={label} aria-label={label} variant="ghost" size="sm">
-              <Icon size="22" />
-            </IconButton>
-          ))}
 
           {/* User Menu */}
           <Menu>
-            <MenuButton as={Button} variant="ghost" size="sm" padding="10px" borderRadius="10px">
-              <HStack gap={2}>
+          <IconButton
+          height="50px"
+          px="1.5"
+           aria-label={"Notification"} backgroundColor="#F7F7F7" variant="ghost" size="sm">
+              <FaBell size="22" />
+            </IconButton>
+            <MenuButton as={Button} height="50px" px="1.5" backgroundColor="#F7F7F7" variant="ghost" size="sm" padding="10px" borderRadius="10px">
+              <HStack gap={2} >
                 <Avatar.Root size="sm" title="Hi Paul">
                   <Avatar.Image src="https://bit.ly/sage-adebayo" alt="Paul" />
                   <Avatar.Fallback>PA</Avatar.Fallback>

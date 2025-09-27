@@ -206,8 +206,8 @@ const TaskManagement = () => {
             <IconButton
               size="sm"
               bg="transparent"
-              border="1px"
-              borderColor="gray.800"
+              borderColor="#CDD6E9"
+              borderWidth="1px"
               _hover={{ bg: "gray.300" }}
               borderRadius="full"
               onClick={handleBackClick}

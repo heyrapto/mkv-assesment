@@ -10,11 +10,12 @@ import { Image } from '@chakra-ui/react'
 import { FaArrowLeft } from 'react-icons/fa'
 import { sidebarItems } from '@/constants'
 import { SidebarItem } from './sidebar-item'
+import SettingsSection from '../ui/settings'
 
 const Sidebar: React.FC = () => {
   const { colorMode } = useColorMode()
   const bg = colorMode === 'light' ? 'white' : 'gray.800'
-  const borderColor = colorMode === 'light' ? 'gray.200' : 'gray.700'
+  const borderColor = colorMode === 'light' ? '#CDD6E9' : 'gray.700'
 
   const [collapsed, setCollapsed] = React.useState(false)
 
@@ -23,7 +24,7 @@ const Sidebar: React.FC = () => {
       w={collapsed ? '80px' : '280px'}
       transition="width 0.18s"
       bg={bg}
-      borderRight="1px"
+      borderWidth="1px"
       borderColor={borderColor}
       h="100vh"
       overflowY="auto"
@@ -68,6 +69,8 @@ const Sidebar: React.FC = () => {
           <SidebarItem key={item.name} item={item} collapsed={collapsed} setCollapsed={setCollapsed} />
         ))}
       </VStack>
+
+      <SettingsSection collapsed={collapsed} />
     </Box>
   )
 }
