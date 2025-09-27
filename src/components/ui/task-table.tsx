@@ -97,9 +97,22 @@ export const TaskTable = ({ tasks, isDenseView }: TaskTableProps) => {
                 ))}
               </AvatarGroup>
               {task.assignee.length > 2 && (
-                <Text fontSize={isDenseView ? "2xs" : "xs"} color="#6B7280">
-                  +{task.assignee.length - 2}
-                </Text>
+                <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                w="22px"
+                h="22px"
+                backgroundColor="purple.300"
+                color="white"
+                borderRadius="full"
+                fontSize="2xs"
+                fontWeight="600"
+                border="2px solid white"
+                ml={-3}
+            >
+                +{task.assignee.length - 2}
+            </Box>
               )}
             </HStack>
   

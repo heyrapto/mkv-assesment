@@ -24,7 +24,7 @@ interface TaskCardViewProps {
 }
 
 const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove, onOpenCreateModal }) => {
-    
+
     const handleDragEnd = (result: DropResult) => {
         const { destination, source, draggableId } = result
 
@@ -40,18 +40,18 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove, onOpenCr
         }
 
         const taskId = parseInt(draggableId.replace("task-", ""))
-        
+
         const statusMap: Record<string, Task['status']> = {
             todo: "todo",
             progress: "progress",
             complete: "complete",
         }
-        
-        const newStatus = statusMap[destination.droppableId] 
+
+        const newStatus = statusMap[destination.droppableId]
         if (newStatus && onTaskMove) {
             onTaskMove(taskId, newStatus)
         }
-        
+
     }
 
     const getColumnByStatus = (status: "todo" | "progress" | "complete") => {
@@ -215,15 +215,15 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove, onOpenCr
                                                             display="flex"
                                                             alignItems="center"
                                                             justifyContent="center"
-                                                            w="20px"
-                                                            h="20px"
-                                                            bg="#8B5CF6"
+                                                            w="22px"
+                                                            h="22px"
+                                                            backgroundColor="purple.300"
                                                             color="white"
                                                             borderRadius="full"
                                                             fontSize="2xs"
                                                             fontWeight="600"
                                                             border="2px solid white"
-                                                            ml={-1}
+                                                            ml={-3}
                                                         >
                                                             +{task.assignee.length - 2}
                                                         </Box>
@@ -260,7 +260,7 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove, onOpenCr
                                 fontWeight="normal"
                                 borderRadius="lg"
                                 border="1px dashed #E5E7EB"
-                                _hover={{ 
+                                _hover={{
                                     bg: "#F9FAFB",
                                     borderColor: "#D1D5DB",
                                     color: "#374151"
@@ -281,7 +281,7 @@ const TaskCardView: React.FC<TaskCardViewProps> = ({ tasks, onTaskMove, onOpenCr
     return (
         <DragDropContext onDragEnd={handleDragEnd}>
             <Flex gap={6} direction={{ base: "column", md: "row" }}>
-                {(["todo", "progress", "complete"] as const).map(status => 
+                {(["todo", "progress", "complete"] as const).map(status =>
                     getColumnByStatus(status)
                 )}
             </Flex>
