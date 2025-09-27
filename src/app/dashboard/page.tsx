@@ -74,6 +74,7 @@ const TaskManagement = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false)
   const [isDateModalOpen, setIsDateModalOpen] = useState<boolean>(false)
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false)
+  const [currentTab, setCurrentTab] = useState<string>("todo")
   const [filters, setFilters] = useState<Filters>({
     priority: [],
     status: [],
@@ -125,6 +126,46 @@ const TaskManagement = () => {
     return matchesSearch && matchesPriority && matchesStatus && matchesDateRange
   })
 
+  // Helper function to paginate tasks
+  const getPaginatedTasks = (tasks: Task[]) => {
+    const startIndex = (currentPage - 1) * rowsPerPage
+    const endIndex = startIndex + rowsPerPage
+    return tasks.slice(startIndex, endIndex)
+  }
+
+  // Get task counts for badges (total counts, not paginated)
+  const taskCounts = {
+    todo: filteredTasks.filter((t) => t.status === "todo").length,
+    progress: filteredTasks.filter((t) => t.status === "progress").length,
+    complete: filteredTasks.filter((t) => t.status === "complete").length,
+  }
+
+  // Calculate total pages based on current tab's filtered tasks
+  const getCurrentTabTotalPages = (tabValue: string) => {
+    let currentTabTasks: Task[]
+    switch(tabValue) {
+      case "todo":
+        currentTabTasks = filteredTasks.filter((t) => t.status === "todo")
+        break
+      case "progress":
+        currentTabTasks = filteredTasks.filter((t) => t.status === "progress")
+        break
+      case "complete":
+        currentTabTasks = filteredTasks.filter((t) => t.status === "complete")
+        break
+      default:
+        currentTabTasks = filteredTasks
+    }
+    return Math.ceil(currentTabTasks.length / rowsPerPage)
+  }
+
+  const taskGroups: Record<string, Task[]> = {
+    all: getPaginatedTasks(filteredTasks),
+    todo: getPaginatedTasks(filteredTasks.filter((t) => t.status === "todo")),
+    progress: getPaginatedTasks(filteredTasks.filter((t) => t.status === "progress")),
+    complete: getPaginatedTasks(filteredTasks.filter((t) => t.status === "complete")),
+  }
+
   const handleAddTask = (newTask: Task) => {
     const id = tasks.length > 0 ? Math.max(...tasks.map(t => Number(t.id))) + 1 : 1
     const taskToAdd: Task = {
@@ -138,17 +179,10 @@ const TaskManagement = () => {
     setTasks([taskToAdd, ...tasks])
   }  
 
-  const taskGroups: Record<string, Task[]> = {
-    all: filteredTasks,
-    todo: filteredTasks.filter((t) => t.status === "todo"),
-    progress: filteredTasks.filter((t) => t.status === "progress"),
-    complete: filteredTasks.filter((t) => t.status === "complete"),
-  }
-
   const tabItems = [
-    { value: "todo", label: "To Do", icon: <LuListFilter />, color: "#A78BFA" },
-    { value: "progress", label: "In Progress", icon: <FaCapsules />, color: "#FBBF24" },
-    { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#10B981" },
+    { value: "todo", label: "To Do", icon: <LuListFilter />, color: "#A78BFA", count: taskCounts.todo },
+    { value: "progress", label: "In Progress", icon: <FaCapsules />, color: "#FBBF24", count: taskCounts.progress },
+    { value: "complete", label: "Complete", icon: <FaCheckCircle />, color: "#10B981", count: taskCounts.complete },
   ]
 
   const headerActions: HeaderAction[] = [
@@ -186,7 +220,7 @@ const TaskManagement = () => {
     },
   ]
 
-  const totalPages = Math.ceil(filteredTasks.length / rowsPerPage)
+  const totalPages = getCurrentTabTotalPages(currentTab)
 
   return (
     <MainLayout>
@@ -313,6 +347,10 @@ const TaskManagement = () => {
         <Tabs.Root
           defaultValue="todo"
           variant="plain"
+          onValueChange={({ value }) => {
+            setCurrentTab(value)
+            setCurrentPage(1) // Reset to first page when switching tabs
+          }}
         >
           <HStack bg="gray.50" p="10px" borderRadius="lg" marginBottom="10px" className="w-full gap-4" display="inline-flex">
             {tabItems.map((tab) => (
@@ -358,7 +396,7 @@ const TaskManagement = () => {
                   fontSize="xs"
                   fontWeight="semibold"
                 >
-                  ({taskGroups[tab.value].length})
+                  ({tab.count})
                 </Badge>
               </Tabs.Trigger>
             ))}
