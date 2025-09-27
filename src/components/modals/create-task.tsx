@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import {
   FaSearch
 } from "react-icons/fa"
 import { Task } from "@/types/task"
+import { toast } from "sonner"
 
 const availableAssignees = [
   { id: 1, name: "Maria Vetrovs", avatar: "https://i.pravatar.cc/150?u=maria" },
@@ -172,6 +173,13 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [assigneeSearch, setAssigneeSearch] = useState("")
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const assigneeDropdownRef = useRef<HTMLDivElement>(null)
+  const statusDropdownRef = useRef<HTMLDivElement>(null)
+  const priorityDropdownRef = useRef<HTMLDivElement>(null)
+  const dateDropdownRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen && defaultStatus) {
@@ -179,53 +187,129 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
     }
   }, [isOpen, defaultStatus])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(event.target as Node)) {
+        setShowAssigneeSearch(false)
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setShowStatusDropdown(false)
+      }
+      if (priorityDropdownRef.current && !priorityDropdownRef.current.contains(event.target as Node)) {
+        setShowPriorityDropdown(false)
+      }
+      if (dateDropdownRef.current && !dateDropdownRef.current.contains(event.target as Node)) {
+        setShowQuickDates(false)
+      }
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setShowCalendar(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTaskName("")
+      setStatus("todo")
+      setDates("")
+      setSelectedAssignees([])
+      setPriority("")
+      setDescription("")
+      setErrors({})
+      setAssigneeSearch("")
+      setShowStatusDropdown(false)
+      setShowQuickDates(false)
+      setShowAssigneeSearch(false)
+      setShowPriorityDropdown(false)
+      setShowCalendar(false)
+    }
+  }, [isOpen])
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!taskName.trim()) {
+      newErrors.taskName = "Task name is required"
+    }
+
+    if (!priority) {
+      newErrors.priority = "Priority is required"
+    }
+
+    if (selectedAssignees.length === 0) {
+      newErrors.assignees = "At least one assignee is required"
+    }
+
+    if (!date) {
+      newErrors.date = "Date is required"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   if (!isOpen) return null
 
   const priorityMap: Record<string, Task["priority"]> = {
     urgent: "Urgent",
-    important: "Important",
+    important: "Important", 
     normal: "Medium",
     low: "Low",
   }
 
   const statusMap: Record<string, Task["status"]> = {
     todo: "todo",
-    progress: "progress",
+    progress: "progress", 
     complete: "complete",
   }
 
   const handleSubmit = () => {
-    const selectedAssigneeData = availableAssignees.filter(assignee =>
-      selectedAssignees.includes(assignee.id)
-    )
-
-
-    const newTask: Task = {
-      id: crypto.randomUUID(), 
-      name: taskName,
-      status: statusMap[status], 
-      date: date,
-      assignee: selectedAssigneeData.map(a => ({ name: a.name, avatar: a.avatar })),
-      priority: priorityMap[priority],
+    if (!validateForm()) {
+      toast.error("Please fill in all required fields")
+      return
     }
 
-    onSubmit(newTask)
+    try {
+      const selectedAssigneeData = availableAssignees.filter(assignee =>
+        selectedAssignees.includes(assignee.id)
+      )
 
-    setTaskName("")
-    setStatus("todo")
-    setDates("")
-    setSelectedAssignees([])
-    setPriority("")
-    setDescription("")
-    onClose()
+      const newTask: Task = {
+        id: crypto.randomUUID(), 
+        name: taskName.trim(),
+        status: statusMap[status], 
+        date: date,
+        assignee: selectedAssigneeData.map(a => ({ name: a.name, avatar: a.avatar })),
+        priority: priorityMap[priority],
+      }
+
+      onSubmit(newTask)
+      toast.success("Task created successfully!")
+      onClose()
+    } catch (error) {
+      toast.error("Failed to create task. Please try again.")
+    }
   }
 
   const toggleAssignee = (assigneeId: number) => {
-    setSelectedAssignees(prev =>
-      prev.includes(assigneeId)
+    setSelectedAssignees(prev => {
+      const newAssignees = prev.includes(assigneeId)
         ? prev.filter(id => id !== assigneeId)
         : [...prev, assigneeId]
-    )
+        
+      if (newAssignees.length > 0 && errors.assignees) {
+        setErrors(prev => ({ ...prev, assignees: "" }))
+      }
+      
+      return newAssignees
+    })
   }
 
   const getStatusColor = (statusValue: string) => {
@@ -239,6 +323,28 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
   const filteredAssignees = availableAssignees.filter(assignee =>
     assignee.name.toLowerCase().includes(assigneeSearch.toLowerCase())
   )
+
+  const handleTaskNameChange = (value: string) => {
+    setTaskName(value)
+    if (value.trim() && errors.taskName) {
+      setErrors(prev => ({ ...prev, taskName: "" }))
+    }
+  }
+
+  const handlePrioritySelect = (priorityValue: string) => {
+    setPriority(priorityValue)
+    setShowPriorityDropdown(false)
+    if (errors.priority) {
+      setErrors(prev => ({ ...prev, priority: "" }))
+    }
+  }
+
+  const handleDateSelect = (dateValue: string) => {
+    setDates(dateValue)
+    if (errors.date) {
+      setErrors(prev => ({ ...prev, date: "" }))
+    }
+  }
 
   return (
     <Box
@@ -283,7 +389,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
           <Input
             placeholder={taskName || "MKV Intranet V2"}
             value={taskName}
-            onChange={(e) => setTaskName(e.target.value)}
+            onChange={(e) => handleTaskNameChange(e.target.value)}
             fontSize="2xl"
             fontWeight="700"
             color="#111827"
@@ -293,12 +399,16 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
             h="auto"
             _focus={{ border: "none", boxShadow: "none" }}
             _placeholder={{ color: "#D1D5DB", fontWeight: "700" }}
+            borderBottom={errors.taskName ? "2px solid #EF4444" : "none"}
           />
+          {errors.taskName && (
+            <Text color="#EF4444" fontSize="sm" mt={2}>{errors.taskName}</Text>
+          )}
         </Box>
 
         <VStack gap={0} align="stretch" px={6}>
           {/* Status */}
-          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6" ref={statusDropdownRef}>
             <HStack justify="space-between">
               <HStack gap={3}>
                 <Box
@@ -368,19 +478,22 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
           </Box>
 
           {/* Dates */}
-          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6" ref={dateDropdownRef}>
             <HStack justify="space-between">
               <HStack gap={3}>
                 <FaCalendarAlt color="#6B7280" size={16} />
-                <Text color="#6B7280" fontWeight="500" fontSize="15px">Dates</Text>
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">
+                  Dates {errors.date && <Text as="span" color="#EF4444">*</Text>}
+                </Text>
               </HStack>
               <Box position="relative">
                 <Text
-                  color="#9CA3AF"
+                  color={date ? "#111827" : "#9CA3AF"}
                   cursor="pointer"
                   onClick={() => setShowQuickDates(!showQuickDates)}
                   fontSize="14px"
                   fontWeight="400"
+                  borderBottom={errors.date ? "1px solid #EF4444" : "none"}
                 >
                   {date || "00/00/0000"}
                 </Text>
@@ -408,7 +521,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                         cursor="pointer"
                         _hover={{ bg: "#F3F4F6" }}
                         onClick={() => {
-                          setDates(option.label)
+                          handleDateSelect(option.label)
                           setShowQuickDates(false)
                         }}
                       >
@@ -436,28 +549,35 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                 )}
 
                 {showCalendar && (
-                  <CalendarPicker
-                    onDateSelect={(date) => {
-                      setDates(date)
-                      setShowCalendar(false)
-                    }}
-                    onClose={() => setShowCalendar(false)}
-                  />
+                  <div ref={calendarRef}>
+                    <CalendarPicker
+                      onDateSelect={(date) => {
+                        handleDateSelect(date)
+                        setShowCalendar(false)
+                      }}
+                      onClose={() => setShowCalendar(false)}
+                    />
+                  </div>
                 )}
               </Box>
             </HStack>
+            {errors.date && (
+              <Text color="#EF4444" fontSize="sm" mt={1}>{errors.date}</Text>
+            )}
           </Box>
 
           {/* Assignees */}
-          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6" ref={assigneeDropdownRef}>
             <HStack justify="space-between">
               <HStack gap={3}>
                 <FaUser color="#6B7280" size={16} />
-                <Text color="#6B7280" fontWeight="500" fontSize="15px">Assignees</Text>
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">
+                  Assignees {errors.assignees && <Text as="span" color="#EF4444">*</Text>}
+                </Text>
               </HStack>
               <Box position="relative">
                 {selectedAssignees.length > 0 ? (
-                  <HStack gap={0}>
+                  <HStack gap={0} cursor="pointer" onClick={() => setShowAssigneeSearch(!showAssigneeSearch)}>
                     {selectedAssignees.slice(0, 2).map(assigneeId => {
                       const assignee = availableAssignees.find(a => a.id === assigneeId)
                       return assignee ? (
@@ -495,6 +615,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                     onClick={() => setShowAssigneeSearch(!showAssigneeSearch)}
                     fontSize="14px"
                     fontWeight="400"
+                    borderBottom={errors.assignees ? "1px solid #EF4444" : "none"}
                   >
                     Select Assignee
                   </Text>
@@ -558,14 +679,19 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                 )}
               </Box>
             </HStack>
+            {errors.assignees && (
+              <Text color="#EF4444" fontSize="sm" mt={1}>{errors.assignees}</Text>
+            )}
           </Box>
 
           {/* Priority */}
-          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6">
+          <Box position="relative" py={5} borderBottom="1px solid #F3F4F6" ref={priorityDropdownRef}>
             <HStack justify="space-between">
               <HStack gap={3}>
                 <FaFlag color="#6B7280" size={16} />
-                <Text color="#6B7280" fontWeight="500" fontSize="15px">Priority</Text>
+                <Text color="#6B7280" fontWeight="500" fontSize="15px">
+                  Priority {errors.priority && <Text as="span" color="#EF4444">*</Text>}
+                </Text>
               </HStack>
               <Box position="relative">
                 <Text
@@ -574,6 +700,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                   onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
                   fontSize="14px"
                   fontWeight={priority ? "500" : "400"}
+                  borderBottom={errors.priority ? "1px solid #EF4444" : "none"}
                 >
                   {priorityOptions.find(opt => opt.value === priority)?.label || "Select Priority"}
                 </Text>
@@ -599,10 +726,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                         py={2.5}
                         cursor="pointer"
                         _hover={{ bg: "#F3F4F6" }}
-                        onClick={() => {
-                          setPriority(option.value)
-                          setShowPriorityDropdown(false)
-                        }}
+                        onClick={() => handlePrioritySelect(option.value)}
                       >
                         <FaFlag color={option.color} size={12} />
                         <Text fontSize="sm" fontWeight="500">{option.label}</Text>
@@ -627,6 +751,9 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
                 )}
               </Box>
             </HStack>
+            {errors.priority && (
+              <Text color="#EF4444" fontSize="sm" mt={1}>{errors.priority}</Text>
+            )}
           </Box>
 
           {/* Description */}
@@ -636,7 +763,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
               <Text color="#6B7280" fontWeight="500" fontSize="15px">Description</Text>
             </HStack>
             <Textarea
-            padding="2"
+              padding="2"
               placeholder="Write something or type"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -673,5 +800,3 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
     </Box>
   )
 }
-
-export default CreateTaskModal

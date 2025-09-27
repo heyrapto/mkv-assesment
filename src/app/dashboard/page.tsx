@@ -37,7 +37,7 @@ import { DatePickerModal } from "@/components/modals/date-picker"
 import { mockTasks } from "@/constants"
 import { Filters, Task } from "@/types/task"
 import { TaskTable } from "@/components/ui/task-table"
-import CreateTaskModal from "@/components/modals/create-task"
+import { CreateTaskModal } from "@/components/modals/create-task"
 
 const rowsPerPageOptions = createListCollection({
   items: [
@@ -126,21 +126,18 @@ const TaskManagement = () => {
     return matchesSearch && matchesPriority && matchesStatus && matchesDateRange
   })
 
-  // Helper function to paginate tasks
   const getPaginatedTasks = (tasks: Task[]) => {
     const startIndex = (currentPage - 1) * rowsPerPage
     const endIndex = startIndex + rowsPerPage
     return tasks.slice(startIndex, endIndex)
   }
 
-  // Get task counts for badges (total counts, not paginated)
   const taskCounts = {
     todo: filteredTasks.filter((t) => t.status === "todo").length,
     progress: filteredTasks.filter((t) => t.status === "progress").length,
     complete: filteredTasks.filter((t) => t.status === "complete").length,
   }
 
-  // Calculate total pages based on current tab's filtered tasks
   const getCurrentTabTotalPages = (tabValue: string) => {
     let currentTabTasks: Task[]
     switch(tabValue) {
