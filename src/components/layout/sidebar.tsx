@@ -54,7 +54,7 @@ const Sidebar: React.FC = () => {
           <IconButton
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             size="sm"
-            bg="gray.200"
+            bg="#F7F7F7"
             _hover={{ bg: 'gray.300' }}
             borderRadius="full"
             onClick={() => setCollapsed((s) => !s)}

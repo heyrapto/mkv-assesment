@@ -636,6 +636,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
               <Text color="#6B7280" fontWeight="500" fontSize="15px">Description</Text>
             </HStack>
             <Textarea
+            padding="2"
               placeholder="Write something or type"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -644,7 +645,6 @@ export const CreateTaskModal = ({ isOpen, onClose, onSubmit, defaultStatus }: Cr
               borderRadius="md"
               minH="80px"
               resize="none"
-              px={0}
               fontSize="14px"
               color="#111827"
               _focus={{ border: "none", boxShadow: "none" }}

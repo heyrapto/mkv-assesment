@@ -444,7 +444,7 @@ const TaskManagement = () => {
               })}              
             >
               <Select.Control w="70px">
-                <Select.Trigger borderRadius="50px" className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
+                <Select.Trigger borderRadius="50px" borderColor="#75C5C1" borderWidth="1px" className="flex items-center justify-between px-3 py-1 h-8 cursor-pointer">
                   <Select.ValueText className="flex-1 text-center" />
                   <FaChevronDown className="flex-1 text-center" />
                 </Select.Trigger>
